@@ -1,5 +1,5 @@
 package com.itsm.demo.service;
-
+import java.util.List;
 
 import com.itsm.demo.exception.InvalidIncidentException;
 import com.itsm.demo.model.*;
@@ -13,6 +13,14 @@ public class IncidentService {
 
     private final IncidentRepository incidentRepository;
     private final PriorityStrategy priorityStrategy;
+    public List<Incident> findByReporter(User reporter) {
+        return incidentRepository.findByReporter(reporter);
+    }
+
+    public Incident findById(Long id) {
+        return incidentRepository.findById(id)
+                .orElseThrow(() -> new InvalidIncidentException("Incident " + id + " not found"));
+    }
 
     public IncidentService(IncidentRepository incidentRepository,
                            PriorityStrategy priorityStrategy) {

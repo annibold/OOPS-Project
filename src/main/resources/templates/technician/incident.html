@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Incident</title></head>
+<body>
+<h2>Incident #<span th:text="${incident.id}"></span></h2>
+<p th:if="${error}" th:text="${error}" style="color:red"></p>
+
+<p><b>Title:</b> <span th:text="${incident.title}"></span></p>
+<p><b>Description:</b> <span th:text="${incident.description}"></span></p>
+<p><b>Reported by:</b> <span th:text="${incident.reporter.name}"></span></p>
+<p><b>Category:</b> <span th:text="${incident.category}"></span></p>
+<p><b>Priority:</b> <span th:text="${incident.priority}"></span></p>
+<p><b>Status:</b> <span th:text="${incident.status}"></span></p>
+<p><b>Created:</b> <span th:text="${#temporals.format(incident.createdAt, 'dd MMM yyyy HH:mm')}"></span></p>
+<p><b>Resolution:</b> <span th:text="${incident.resolution != null} ? ${incident.resolution} : '-'"></span></p>
+
+<h3>Actions</h3>
+<form th:if="${incident.status.name() == 'ASSIGNED'}"
+      th:action="@{/technician/incidents/{id}/acknowledge(id=${incident.id})}" method="post">
+    <button type="submit">Acknowledge</button>
+</form>
+<form th:if="${incident.status.name() == 'ACKNOWLEDGED'}"
+      th:action="@{/technician/incidents/{id}/start(id=${incident.id})}" method="post">
+    <button type="submit">Start investigation</button>
+</form>
+<form th:if="${incident.status.name() == 'IN_PROGRESS'}"
+      th:action="@{/technician/incidents/{id}/resolve(id=${incident.id})}" method="post">
+    <label>Resolution details<br><textarea name="resolution" rows="3" cols="50"></textarea></label><br>
+    <button type="submit">Mark resolved</button>
+</form>
+
+<h3>Investigation notes</h3>
+<ul>
+    <li th:each="n : ${notes}">
+        <span th:text="${#temporals.format(n.createdAt, 'dd MMM HH:mm')}"></span> -
+        <span th:text="${n.author}"></span>: <span th:text="${n.text}"></span>
+    </li>
+</ul>
+<form th:if="${incident.status.name() == 'ACKNOWLEDGED' or incident.status.name() == 'IN_PROGRESS'}"
+      th:action="@{/technician/incidents/{id}/note(id=${incident.id})}" method="post">
+    <textarea name="text" rows="2" cols="50"></textarea><br>
+    <button type="submit">Add note</button>
+</form>
+
+<p><a th:href="@{/technician/incidents}">Back to assigned incidents</a></p>
+</body>
+</html>

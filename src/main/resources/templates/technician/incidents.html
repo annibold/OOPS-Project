@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Assigned incidents</title></head>
+<body>
+<h2>My assigned incidents</h2>
+<p>Current workload: <b th:text="${workload}"></b> active incident(s)</p>
+<table border="1" cellpadding="6">
+    <tr><th>ID</th><th>Title</th><th>Category</th><th>Priority</th><th>Status</th></tr>
+    <tr th:each="i : ${incidents}">
+        <td><a th:href="@{/technician/incidents/{id}(id=${i.id})}" th:text="${i.id}"></a></td>
+        <td th:text="${i.title}"></td>
+        <td th:text="${i.category}"></td>
+        <td th:text="${i.priority}"></td>
+        <td th:text="${i.status}"></td>
+    </tr>
+</table>
+<p><a th:href="@{/technician/home}">Back</a></p>
+</body>
+</html>

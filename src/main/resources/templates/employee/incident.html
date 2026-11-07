@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Incident</title></head>
+<body>
+<h2>Incident #<span th:text="${incident.id}"></span></h2>
+<p><b>Title:</b> <span th:text="${incident.title}"></span></p>
+<p><b>Description:</b> <span th:text="${incident.description}"></span></p>
+<p><b>Category:</b> <span th:text="${incident.category}"></span></p>
+<p><b>Priority:</b> <span th:text="${incident.priority}"></span></p>
+<p><b>Status:</b> <span th:text="${incident.status}"></span></p>
+<p><b>Assigned technician:</b>
+    <span th:text="${incident.assignedTechnician != null} ? ${incident.assignedTechnician.name} : 'Not yet assigned'"></span></p>
+<p><b>Created:</b> <span th:text="${#temporals.format(incident.createdAt, 'dd MMM yyyy HH:mm')}"></span></p>
+<p><b>Resolution:</b> <span th:text="${incident.resolution != null} ? ${incident.resolution} : '-'"></span></p>
+<p><a th:href="@{/employee/incidents}">Back to my incidents</a></p>
+</body>
+</html>
