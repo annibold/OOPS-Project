@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Employee</title></head>
+<body>
+<h2>Employee dashboard</h2>
+<p>Logged in as <b th:text="${email}"></b></p>
+<form th:action="@{/logout}" method="post"><button type="submit">Logout</button></form>
+</body>
+</html>

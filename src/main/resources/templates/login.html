@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>I-ITSM Login</title></head>
+<body>
+<h2>I-ITSM Login</h2>
+<p th:if="${param.error}" style="color:red">Invalid email or password.</p>
+<p th:if="${param.logout}">You have been logged out.</p>
+<p th:if="${param.registered}">Registered! Please log in.</p>
+<form th:action="@{/login}" method="post">
+    <label>Email <input type="text" name="username"></label><br>
+    <label>Password <input type="password" name="password"></label><br>
+    <button type="submit">Login</button>
+</form>
+<p><a th:href="@{/register}">Register as employee</a></p>
+</body>
+</html>
