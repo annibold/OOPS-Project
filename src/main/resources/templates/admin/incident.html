@@ -1,82 +1,129 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><title>Admin - Incident Details</title></head>
+<head>
+    <meta charset="UTF-8">
+    <title>Incident Details - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
 <body>
-<h2>Incident #<span th:text="${incident.id}"></span> Details</h2>
 
-<p th:if="${message}" th:text="${message}" style="color:green; font-weight:bold;"></p>
-<p th:if="${error}" th:text="${error}" style="color:red; font-weight:bold;"></p>
-
-<table border="1" cellpadding="6">
-    <tr><td><b>Title</b></td><td th:text="${incident.title}"></td></tr>
-    <tr><td><b>Description</b></td><td th:text="${incident.description}"></td></tr>
-    <tr><td><b>Reporter</b></td><td th:text="${incident.reporter.name} + ' (' + ${incident.reporter.email} + ')'"></td></tr>
-    <tr><td><b>Category</b></td><td th:text="${incident.category}"></td></tr>
-    <tr><td><b>Priority</b></td><td th:text="${incident.priority}"></td></tr>
-    <tr><td><b>Status</b></td><td th:text="${incident.status}"></td></tr>
-    <tr><td><b>Assigned Technician</b></td>
-        <td th:text="${incident.assignedTechnician != null} ? ${incident.assignedTechnician.name} : 'Unassigned'"></td></tr>
-    <tr><td><b>Created At</b></td><td th:text="${#temporals.format(incident.createdAt, 'dd MMM yyyy HH:mm')}"></td></tr>
-    <tr><td><b>Resolved At</b></td>
-        <td th:text="${incident.resolvedAt != null} ? ${#temporals.format(incident.resolvedAt, 'dd MMM yyyy HH:mm')} : '-'"></td></tr>
-    <tr><td><b>Resolution Notes</b></td><td th:text="${incident.resolution != null} ? ${incident.resolution} : '-'"></td></tr>
-    <tr th:if="${sla != null}">
-        <td><b>SLA Status</b></td>
-        <td>
-            Status: <b th:text="${sla.status()}"></b> |
-            Response Target: <span th:text="${#temporals.format(sla.responseDeadline(), 'HH:mm')}"></span> |
-            Resolution Target: <span th:text="${#temporals.format(sla.resolutionDeadline(), 'HH:mm')}"></span>
-        </td>
-    </tr>
-</table>
-
-<!-- Intelligent Feature 1: Correlated Incidents Alert -->
-<div th:if="${!duplicates.empty}" style="margin-top:15px; padding:10px; border:2px dashed #e67e22; background:#fef5e7;">
-    <h3 style="color:#d35400; margin-top:0;">⚠️ Correlated / Duplicate Incidents</h3>
-    <ul>
-        <li th:each="d : ${duplicates}">
-            <a th:href="@{/admin/incidents/{id}(id=${d.incident.id})}">
-                Incident #<span th:text="${d.incident.id}"></span>: <span th:text="${d.incident.title}"></span>
-            </a>
-            - <span th:text="${d.reason}"></span>
+<header class="navbar" style="background:#0f172a;">
+    <a class="brand" th:href="@{/admin/home}" style="color:#f59e0b;">⚡ I-ITSM <span style="font-size:0.8rem; font-weight:normal; color:#94a3b8;">| Admin Portal</span></a>
+    <ul class="navbar-nav">
+        <li><a th:href="@{/admin/home}">Dashboard</a></li>
+        <li><a th:href="@{/admin/incidents}">Incidents</a></li>
+        <li><a th:href="@{/admin/reports}">Reports</a></li>
+        <li><a th:href="@{/admin/sla}">SLA Monitor</a></li>
+        <li><a th:href="@{/admin/assignment}">Assignment</a></li>
+        <li><a th:href="@{/admin/users}">Users</a></li>
+        <li><a th:href="@{/admin/audit}">Audit Trail</a></li>
+        <li><a th:href="@{/notifications}">🔔</a></li>
+        <li>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
         </li>
     </ul>
+</header>
+
+<div class="container" style="max-width:900px;">
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h2>Incident #<span th:text="${incident.id}"></span> Details</h2>
+            <div>
+                <span th:class="'badge badge-' + ${#strings.toLowerCase(incident.priority)}" th:text="${incident.priority}"></span>
+                <span class="badge badge-status" th:text="${incident.status}" style="margin-left:6px;"></span>
+            </div>
+        </div>
+
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <table>
+            <tr><th style="width:25%;">Title</th><td th:text="${incident.title}" style="font-weight:600;"></td></tr>
+            <tr><th>Description</th><td th:text="${incident.description}"></td></tr>
+            <tr><th>Reporter</th><td th:text="${incident.reporter.name} + ' (' + ${incident.reporter.email} + ')'"></td></tr>
+            <tr><th>Category</th><td th:text="${incident.category}"></td></tr>
+            <tr><th>Assigned Specialist</th>
+                <td th:text="${incident.assignedTechnician != null} ? ${incident.assignedTechnician.name} : 'Unassigned'"></td></tr>
+            <tr><th>Created At</th><td th:text="${#temporals.format(incident.createdAt, 'dd MMM yyyy HH:mm')}"></td></tr>
+            <tr><th>Resolved At</th>
+                <td th:text="${incident.resolvedAt != null} ? ${#temporals.format(incident.resolvedAt, 'dd MMM yyyy HH:mm')} : '-'"></td></tr>
+            <tr><th>Resolution Notes</th><td th:text="${incident.resolution != null} ? ${incident.resolution} : '-'"></td></tr>
+            <tr th:if="${sla != null}">
+                <th>SLA Health Status</th>
+                <td>
+                    <span th:class="'badge badge-' + ${#strings.toLowerCase(sla.status())}" th:text="${sla.status()}"></span>
+                    <span style="font-size:0.85rem; color:var(--text-muted); margin-left:8px;">
+                        Response target: <span th:text="${#temporals.format(sla.responseDeadline(), 'HH:mm')}"></span> |
+                        Resolution target: <span th:text="${#temporals.format(sla.resolutionDeadline(), 'HH:mm')}"></span>
+                    </span>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Intelligent Feature 1: Correlated Incidents Alert -->
+        <div th:if="${!duplicates.empty}" style="margin-top:20px; padding:16px; border:1px solid #f59e0b; border-radius:8px; background:#fffbeb;">
+            <h3 style="color:#b45309; margin-top:0; font-size:1.05rem;">⚠️ Correlated / Duplicate Incidents Detected</h3>
+            <ul style="list-style:none; padding-left:0; margin-top:8px;">
+                <li th:each="d : ${duplicates}" style="padding:6px 0; border-bottom:1px solid #fde68a;">
+                    <a th:href="@{/admin/incidents/{id}(id=${d.incident.id})}" style="font-weight:600; color:var(--primary);">
+                        Incident #<span th:text="${d.incident.id}"></span>: <span th:text="${d.incident.title}"></span>
+                    </a>
+                    &mdash; <span style="color:#78350f;" th:text="${d.reason}"></span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Admin Closure Panel -->
+        <div th:if="${incident.status.name() == 'VERIFIED'}" style="margin-top:20px; padding:16px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px;">
+            <h3 style="color:#1e40af; margin-top:0;">Closure Action</h3>
+            <p style="font-size:0.9rem; color:#1e3a8a; margin-bottom:12px;">This incident has been verified by the user. As an administrator, you may now formally close the ticket.</p>
+            <form th:action="@{/admin/incidents/{id}/close(id=${incident.id})}" method="post">
+                <button type="submit" class="btn btn-primary" style="padding:8px 18px;">
+                    Confirm &amp; Formally Close Incident
+                </button>
+            </form>
+        </div>
+
+        <!-- Technician Notes -->
+        <div style="margin-top:28px;">
+            <h3>📝 Technician Notes</h3>
+            <div th:if="${notes.empty}" style="color:var(--text-muted); font-size:0.9rem;">No notes recorded yet.</div>
+            <ul th:if="${!notes.empty}" style="list-style:none; padding-left:0; margin-top:8px;">
+                <li th:each="n : ${notes}" style="padding:8px 12px; background:#f8fafc; border-left:3px solid var(--primary); margin-bottom:6px; border-radius:0 4px 4px 0;">
+                    <span style="font-size:0.8rem; color:var(--text-muted);" th:text="${#temporals.format(n.createdAt, 'dd MMM HH:mm')}"></span> &mdash;
+                    <b th:text="${n.author}"></b>: <span th:text="${n.text}"></span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Audit Trail -->
+        <div style="margin-top:28px;">
+            <h3>📜 Incident Audit Trail</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr><th>Timestamp</th><th>Actor</th><th>Action</th><th>Transition</th><th>Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="a : ${audits}">
+                            <td th:text="${#temporals.format(a.timestamp, 'dd MMM HH:mm:ss')}"></td>
+                            <td th:text="${a.userEmail}"></td>
+                            <td><code th:text="${a.action}"></code></td>
+                            <td th:text="${a.previousState} + ' &rarr; ' + ${a.newState}"></td>
+                            <td th:text="${a.description}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div style="margin-top:24px; border-top:1px solid var(--border-color); padding-top:16px;">
+            <a th:href="@{/admin/incidents}" class="btn btn-secondary">&larr; Back to Incident List</a>
+        </div>
+    </div>
 </div>
 
-<div th:if="${incident.status.name() == 'VERIFIED'}" style="margin-top:15px; padding:10px; background-color:#eef; border:1px solid #99c;">
-    <h3>Closure Action</h3>
-    <p>This incident has been verified by the user. You can now formally close it.</p>
-    <form th:action="@{/admin/incidents/{id}/close(id=${incident.id})}" method="post">
-        <button type="submit" style="background-color:#007bff; color:white; padding:8px 16px; cursor:pointer;">
-            Confirm & Formally Close Incident
-        </button>
-    </form>
-</div>
-
-<h3>Technician Notes</h3>
-<p th:if="${notes.empty}" style="color:gray;">No notes recorded yet.</p>
-<ul>
-    <li th:each="n : ${notes}">
-        <span th:text="${#temporals.format(n.createdAt, 'dd MMM HH:mm')}"></span> -
-        <b th:text="${n.author}"></b>: <span th:text="${n.text}"></span>
-    </li>
-</ul>
-
-<h3>Audit Trail</h3>
-<table border="1" cellpadding="6">
-    <tr><th>Timestamp</th><th>Actor</th><th>Action</th><th>Transition</th><th>Description</th></tr>
-    <tr th:each="a : ${audits}">
-        <td th:text="${#temporals.format(a.timestamp, 'dd MMM HH:mm:ss')}"></td>
-        <td th:text="${a.userEmail}"></td>
-        <td th:text="${a.action}"></td>
-        <td th:text="${a.previousState} + ' -> ' + ${a.newState}"></td>
-        <td th:text="${a.description}"></td>
-    </tr>
-</table>
-
-<p style="margin-top:20px;">
-    <a th:href="@{/admin/incidents}">Back to Incident List</a> |
-    <a th:href="@{/admin/home}">Admin Dashboard</a>
-</p>
 </body>
 </html>

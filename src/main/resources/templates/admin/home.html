@@ -1,18 +1,76 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><title>Admin</title></head>
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - I-ITSM</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
 <body>
-<h2>Admin dashboard</h2>
-<p>Logged in as <b th:text="${email}"></b></p>
-<ul>
-    <li><a th:href="@{/admin/incidents}">Monitor and search incidents</a></li>
-    <li><a th:href="@{/admin/reports}">Reports</a></li>
-    <li><a th:href="@{/admin/sla}">SLA warnings and violations</a></li>
-    <li><a th:href="@{/admin/assignment}">Assignment strategy and unassigned incidents</a></li>
-    <li><a th:href="@{/admin/users}">Users and technicians</a></li>
-    <li><a th:href="@{/admin/audit}">Audit log</a></li>
-    <li><a th:href="@{/notifications}">Notifications</a></li>
-</ul>
-<form th:action="@{/logout}" method="post"><button type="submit">Logout</button></form>
+
+<header class="navbar" style="background:#0f172a;">
+    <a class="brand" th:href="@{/admin/home}" style="color:#f59e0b;">⚡ I-ITSM <span style="font-size:0.8rem; font-weight:normal; color:#94a3b8;">| Admin Portal</span></a>
+    <ul class="navbar-nav">
+        <li><a th:href="@{/admin/home}" style="color:white; font-weight:600;">Dashboard</a></li>
+        <li><a th:href="@{/admin/incidents}">Incidents</a></li>
+        <li><a th:href="@{/admin/reports}">Reports</a></li>
+        <li><a th:href="@{/admin/sla}">SLA Monitor</a></li>
+        <li><a th:href="@{/admin/assignment}">Assignment</a></li>
+        <li><a th:href="@{/admin/users}">Users</a></li>
+        <li><a th:href="@{/admin/audit}">Audit Trail</a></li>
+        <li><a th:href="@{/notifications}">🔔</a></li>
+        <li><span class="user-badge" th:text="${email}"></span></li>
+        <li>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
+        </li>
+    </ul>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>IT Service Management Executive Dashboard 🛡️</h2>
+        <p style="color:var(--text-muted); margin-bottom:24px;">Manage technicians, oversee SLA compliance, monitor incident lifecycles, and reconfigure routing strategies.</p>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
+            <div style="padding:20px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px;">
+                <h3 style="color:#1e40af; margin-bottom:8px;">🔍 Incidents &amp; Search</h3>
+                <p style="color:#1e3a8a; font-size:0.88rem; margin-bottom:14px;">Filter incidents across 8 criteria, inspect audit logs, and close verified tickets.</p>
+                <a th:href="@{/admin/incidents}" class="btn btn-primary">Monitor Incidents &rarr;</a>
+            </div>
+
+            <div style="padding:20px; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:8px;">
+                <h3 style="color:#065f46; margin-bottom:8px;">📊 Operations &amp; Reports</h3>
+                <p style="color:#047857; font-size:0.88rem; margin-bottom:14px;">Live workload analysis per technician, category distribution, and resolution ratios.</p>
+                <a th:href="@{/admin/reports}" class="btn btn-success">View Analytics &rarr;</a>
+            </div>
+
+            <div style="padding:20px; background:#fffbeb; border:1px solid #fde68a; border-radius:8px;">
+                <h3 style="color:#92400e; margin-bottom:8px;">⏱️ SLA Monitoring</h3>
+                <p style="color:#78350f; font-size:0.88rem; margin-bottom:14px;">Real-time automated warnings and violation audit logs with deadline tracking.</p>
+                <a th:href="@{/admin/sla}" class="btn btn-warning">SLA Events &rarr;</a>
+            </div>
+
+            <div style="padding:20px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px;">
+                <h3 style="color:#334155; margin-bottom:8px;">⚙️ Strategy &amp; Routing</h3>
+                <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:14px;">Switch between Skill-Based and Load-Based assignment algorithms at runtime.</p>
+                <a th:href="@{/admin/assignment}" class="btn btn-secondary">Configure Routing &rarr;</a>
+            </div>
+
+            <div style="padding:20px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px;">
+                <h3 style="color:#334155; margin-bottom:8px;">👥 Users &amp; Technicians</h3>
+                <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:14px;">Inspect active technicians, registered employees, and domain skill matrices.</p>
+                <a th:href="@{/admin/users}" class="btn btn-secondary">Manage Users &rarr;</a>
+            </div>
+
+            <div style="padding:20px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px;">
+                <h3 style="color:#334155; margin-bottom:8px;">📜 Full Audit History</h3>
+                <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:14px;">Immutable event log capturing all state changes, actors, and system transitions.</p>
+                <a th:href="@{/admin/audit}" class="btn btn-secondary">Open Audit Log &rarr;</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

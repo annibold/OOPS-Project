@@ -1,18 +1,68 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><title>SLA events</title></head>
+<head>
+    <meta charset="UTF-8">
+    <title>SLA Monitor - I-ITSM</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
 <body>
-<h2>SLA warnings and violations</h2>
-<p>The system checks every minute. P1 response target is 5 minutes, so violations show up quickly in a demo.</p>
-<table border="1" cellpadding="6">
-    <tr><th>Detected</th><th>Incident</th><th>Type</th><th>Details</th></tr>
-    <tr th:each="e : ${events}">
-        <td th:text="${#temporals.format(e.detectedAt, 'dd MMM HH:mm:ss')}"></td>
-        <td th:text="${e.incidentId}"></td>
-        <td th:text="${e.type}"></td>
-        <td th:text="${e.description}"></td>
-    </tr>
-</table>
-<p><a th:href="@{/admin/home}">Back</a></p>
+
+<header class="navbar" style="background:#0f172a;">
+    <a class="brand" th:href="@{/admin/home}" style="color:#f59e0b;">⚡ I-ITSM <span style="font-size:0.8rem; font-weight:normal; color:#94a3b8;">| Admin Portal</span></a>
+    <ul class="navbar-nav">
+        <li><a th:href="@{/admin/home}">Dashboard</a></li>
+        <li><a th:href="@{/admin/incidents}">Incidents</a></li>
+        <li><a th:href="@{/admin/reports}">Reports</a></li>
+        <li><a th:href="@{/admin/sla}" style="color:white; font-weight:600;">SLA Monitor</a></li>
+        <li><a th:href="@{/admin/assignment}">Assignment</a></li>
+        <li><a th:href="@{/admin/users}">Users</a></li>
+        <li><a th:href="@{/admin/audit}">Audit Trail</a></li>
+        <li><a th:href="@{/notifications}">🔔</a></li>
+        <li>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
+        </li>
+    </ul>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>⏱️ Service Level Agreement (SLA) Monitor</h2>
+        <p style="color:var(--text-muted); margin-bottom:16px;">
+            The background engine evaluates active incident deadlines every 60 seconds. Warnings fire automatically at 80% duration; violations fire if targets are breached.
+        </p>
+
+        <div th:if="${events.empty}" class="alert alert-info">
+            No SLA warnings or violations recorded. All active tickets are on track.
+        </div>
+
+        <div th:if="${!events.empty}" class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Detected At</th>
+                        <th>Incident</th>
+                        <th>Event Type</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="e : ${events}">
+                        <td th:text="${#temporals.format(e.detectedAt, 'dd MMM HH:mm:ss')}"></td>
+                        <td>
+                            <a th:href="@{/admin/incidents/{id}(id=${e.incidentId})}" th:text="'#' + ${e.incidentId}" style="font-weight:600; color:var(--primary);"></a>
+                        </td>
+                        <td>
+                            <span th:class="'badge ' + ${e.type == 'WARNING' ? 'badge-at_risk' : 'badge-violated'}" th:text="${e.type}"></span>
+                        </td>
+                        <td th:text="${e.description}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

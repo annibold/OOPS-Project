@@ -1,33 +1,103 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><title>Users</title></head>
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Users - I-ITSM</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
 <body>
-<h2>Users</h2>
-<p th:if="${message}" th:text="${message}" style="color:green"></p>
-<p th:if="${error}" th:text="${error}" style="color:red"></p>
-<table border="1" cellpadding="6">
-    <tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th></tr>
-    <tr th:each="u : ${users}">
-        <td th:text="${u.id}"></td>
-        <td th:text="${u.name}"></td>
-        <td th:text="${u.email}"></td>
-        <td th:text="${u.role}"></td>
-    </tr>
-</table>
 
-<h2>Add technician</h2>
-<form th:action="@{/admin/users/technician}" method="post">
-    <label>Name <input type="text" name="name"></label><br>
-    <label>Email <input type="text" name="email"></label><br>
-    <label>Password <input type="password" name="password"></label><br>
-    <label>Experience (years) <input type="number" name="experience" value="0" min="0"></label><br>
-    <fieldset><legend>Skills</legend>
-        <label th:each="c : ${categories}">
-            <input type="checkbox" name="skills" th:value="${c}"> <span th:text="${c}"></span>
-        </label>
-    </fieldset>
-    <button type="submit">Create technician</button>
-</form>
-<p><a th:href="@{/admin/home}">Back</a></p>
+<header class="navbar" style="background:#0f172a;">
+    <a class="brand" th:href="@{/admin/home}" style="color:#f59e0b;">⚡ I-ITSM <span style="font-size:0.8rem; font-weight:normal; color:#94a3b8;">| Admin Portal</span></a>
+    <ul class="navbar-nav">
+        <li><a th:href="@{/admin/home}">Dashboard</a></li>
+        <li><a th:href="@{/admin/incidents}">Incidents</a></li>
+        <li><a th:href="@{/admin/reports}">Reports</a></li>
+        <li><a th:href="@{/admin/sla}">SLA Monitor</a></li>
+        <li><a th:href="@{/admin/assignment}">Assignment</a></li>
+        <li><a th:href="@{/admin/users}" style="color:white; font-weight:600;">Users</a></li>
+        <li><a th:href="@{/admin/audit}">Audit Trail</a></li>
+        <li><a th:href="@{/notifications}">🔔</a></li>
+        <li>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
+        </li>
+    </ul>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>👥 User &amp; Specialist Directory</h2>
+        <p style="color:var(--text-muted); margin-bottom:16px;">Polymorphic User hierarchy (Employee, Technician, Administrator) persisted via Single-Table Inheritance.</p>
+
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <div class="table-responsive" style="margin-bottom:32px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Full Name</th>
+                        <th>Email (Login)</th>
+                        <th>System Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="u : ${users}">
+                        <td th:text="'#' + ${u.id}"></td>
+                        <td th:text="${u.name}" style="font-weight:600;"></td>
+                        <td th:text="${u.email}"></td>
+                        <td>
+                            <span class="badge" th:style="${u.role.name() == 'ADMIN' ? 'background:#fee2e2; color:#991b1b;' : (u.role.name() == 'TECHNICIAN' ? 'background:#e0f2fe; color:#0369a1;' : 'background:#f0fdf4; color:#15803d;')}" th:text="${u.role}"></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="padding:20px; background:#f8fafc; border:1px solid var(--border-color); border-radius:8px;">
+            <h3>➕ Onboard New Support Specialist</h3>
+            <form th:action="@{/admin/users/technician}" method="post" style="display:flex; flex-direction:column; gap:14px; max-width:600px; margin-top:14px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:0.85rem;">Full Name *</label>
+                        <input type="text" name="name" style="width:100%;" required>
+                    </div>
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:0.85rem;">Email Address *</label>
+                        <input type="text" name="email" style="width:100%;" required>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:0.85rem;">Initial Password *</label>
+                        <input type="password" name="password" style="width:100%;" required>
+                    </div>
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px; font-size:0.85rem;">Experience (Years) *</label>
+                        <input type="number" name="experience" value="1" min="0" style="width:100%;" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label style="display:block; font-weight:600; margin-bottom:6px; font-size:0.85rem;">Domain Technical Skills:</label>
+                    <div style="display:flex; flex-wrap:wrap; gap:10px;">
+                        <label th:each="c : ${categories}" style="padding:4px 8px; background:white; border:1px solid var(--border-color); border-radius:4px; font-size:0.85rem;">
+                            <input type="checkbox" name="skills" th:value="${c}"> <span th:text="${c}"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="btn btn-primary" style="padding:9px 18px;">Create Technician</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

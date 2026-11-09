@@ -1,37 +1,115 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><title>Reports</title></head>
+<head>
+    <meta charset="UTF-8">
+    <title>Analytics & Reports - I-ITSM</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
 <body>
-<h2>Incident overview</h2>
-<table border="1" cellpadding="6">
-    <tr><td>Total incidents</td><td th:text="${ov.total()}"></td></tr>
-    <tr><td>Open incidents</td><td th:text="${ov.open()}"></td></tr>
-    <tr><td>Critical (P1) incidents</td><td th:text="${ov.critical()}"></td></tr>
-    <tr><td>Resolved incidents</td><td th:text="${ov.resolved()}"></td></tr>
-    <tr><td>Incidents with SLA violations</td><td th:text="${ov.slaViolations()}"></td></tr>
-</table>
 
-<h2>Technician workload</h2>
-<table border="1" cellpadding="6">
-    <tr><th>Technician</th><th>Experience (yrs)</th><th>Active incidents</th></tr>
-    <tr th:each="t : ${ov.technicians()}">
-        <td th:text="${t.name}"></td>
-        <td th:text="${t.experienceYears}"></td>
-        <td th:text="${t.activeIncidents}"></td>
-    </tr>
-</table>
+<header class="navbar" style="background:#0f172a;">
+    <a class="brand" th:href="@{/admin/home}" style="color:#f59e0b;">⚡ I-ITSM <span style="font-size:0.8rem; font-weight:normal; color:#94a3b8;">| Admin Portal</span></a>
+    <ul class="navbar-nav">
+        <li><a th:href="@{/admin/home}">Dashboard</a></li>
+        <li><a th:href="@{/admin/incidents}">Incidents</a></li>
+        <li><a th:href="@{/admin/reports}" style="color:white; font-weight:600;">Reports</a></li>
+        <li><a th:href="@{/admin/sla}">SLA Monitor</a></li>
+        <li><a th:href="@{/admin/assignment}">Assignment</a></li>
+        <li><a th:href="@{/admin/users}">Users</a></li>
+        <li><a th:href="@{/admin/audit}">Audit Trail</a></li>
+        <li><a th:href="@{/notifications}">🔔</a></li>
+        <li>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
+        </li>
+    </ul>
+</header>
 
-<h2>Incidents by category</h2>
-<table border="1" cellpadding="6">
-    <tr><th>Category</th><th>Incidents</th></tr>
-    <tr th:each="e : ${ov.byCategory()}"><td th:text="${e.key}"></td><td th:text="${e.value}"></td></tr>
-</table>
+<div class="container">
+    <div class="card">
+        <h2>📊 Operational Analytics &amp; Reports</h2>
 
-<h2>Incidents by priority</h2>
-<table border="1" cellpadding="6">
-    <tr><th>Priority</th><th>Incidents</th></tr>
-    <tr th:each="e : ${ov.byPriority()}"><td th:text="${e.key}"></td><td th:text="${e.value}"></td></tr>
-</table>
-<p><a th:href="@{/admin/home}">Back</a></p>
+        <!-- KPI Metric Cards -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px; margin:20px 0 28px 0;">
+            <div style="padding:16px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; text-align:center;">
+                <div style="font-size:0.8rem; text-transform:uppercase; font-weight:600; color:var(--text-muted);">Total Incidents</div>
+                <div style="font-size:2rem; font-weight:700; color:#0f172a;" th:text="${ov.total()}"></div>
+            </div>
+            <div style="padding:16px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; text-align:center;">
+                <div style="font-size:0.8rem; text-transform:uppercase; font-weight:600; color:#1e40af;">Open Incidents</div>
+                <div style="font-size:2rem; font-weight:700; color:#1d4ed8;" th:text="${ov.open()}"></div>
+            </div>
+            <div style="padding:16px; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; text-align:center;">
+                <div style="font-size:0.8rem; text-transform:uppercase; font-weight:600; color:#991b1b;">Critical (P1)</div>
+                <div style="font-size:2rem; font-weight:700; color:#dc2626;" th:text="${ov.critical()}"></div>
+            </div>
+            <div style="padding:16px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; text-align:center;">
+                <div style="font-size:0.8rem; text-transform:uppercase; font-weight:600; color:#166534;">Resolved</div>
+                <div style="font-size:2rem; font-weight:700; color:#16a34a;" th:text="${ov.resolved()}"></div>
+            </div>
+            <div style="padding:16px; background:#fff1f2; border:1px solid #fecdd3; border-radius:8px; text-align:center;">
+                <div style="font-size:0.8rem; text-transform:uppercase; font-weight:600; color:#be123c;">SLA Violations</div>
+                <div style="font-size:2rem; font-weight:700; color:#e11d48;" th:text="${ov.slaViolations()}"></div>
+            </div>
+        </div>
+
+        <!-- 2 Column Breakdown -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:28px;">
+            <div>
+                <h3>📁 Incidents by Category</h3>
+                <table>
+                    <thead><tr><th>Category</th><th>Count</th></tr></thead>
+                    <tbody>
+                        <tr th:each="e : ${ov.byCategory()}">
+                            <td th:text="${e.key}"></td>
+                            <td><b th:text="${e.value}"></b></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div>
+                <h3>⚡ Incidents by Priority</h3>
+                <table>
+                    <thead><tr><th>Priority</th><th>Count</th></tr></thead>
+                    <tbody>
+                        <tr th:each="e : ${ov.byPriority()}">
+                            <td><span th:class="'badge badge-' + ${#strings.toLowerCase(e.key)}" th:text="${e.key}"></span></td>
+                            <td><b th:text="${e.value}"></b></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Technician Workload Table -->
+        <h3>👨‍💻 Technician Workload &amp; Capacity</h3>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Technician Name</th>
+                        <th>Domain Experience</th>
+                        <th>Active Assigned Tickets</th>
+                        <th>Capacity Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="t : ${ov.technicians()}">
+                        <td th:text="${t.name}" style="font-weight:600;"></td>
+                        <td th:text="${t.experienceYears} + ' years'"></td>
+                        <td><b th:text="${t.activeIncidents}"></b> / 5</td>
+                        <td>
+                            <span th:if="${t.activeIncidents < 5}" class="badge badge-on_track">Available</span>
+                            <span th:if="${t.activeIncidents >= 5}" class="badge badge-violated">Max Capacity</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

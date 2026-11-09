@@ -1,16 +1,59 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><title>Notifications</title></head>
+<head>
+    <meta charset="UTF-8">
+    <title>Notifications - I-ITSM</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
 <body>
-<h2>My notifications</h2>
-<table border="1" cellpadding="6">
-    <tr><th>Time</th><th>Channel</th><th>Message</th></tr>
-    <tr th:each="n : ${notifications}">
-        <td th:text="${#temporals.format(n.createdAt, 'dd MMM HH:mm:ss')}"></td>
-        <td th:text="${n.channel}"></td>
-        <td th:text="${n.message}"></td>
-    </tr>
-</table>
-<p><a th:href="@{/home}">Back to dashboard</a></p>
+
+<header class="navbar">
+    <a class="brand" th:href="@{/home}">⚡ I-ITSM <span style="font-size:0.8rem; font-weight:normal; color:#94a3b8;">| Notification Center</span></a>
+    <ul class="navbar-nav">
+        <li><a th:href="@{/home}">&larr; Return to Dashboard</a></li>
+        <li>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
+        </li>
+    </ul>
+</header>
+
+<div class="container" style="max-width:850px;">
+    <div class="card">
+        <h2>🔔 Notification Inbox</h2>
+        <p style="color:var(--text-muted); margin-bottom:20px;">Multichannel notification stream powered by the Observer Pattern (In-App &amp; Simulated Email).</p>
+
+        <div th:if="${notifications.empty}" class="alert alert-info">
+            You have no notifications at this time.
+        </div>
+
+        <div th:if="${!notifications.empty}" class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Channel</th>
+                        <th>Notification Content</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="n : ${notifications}">
+                        <td th:text="${#temporals.format(n.createdAt, 'dd MMM HH:mm:ss')}" style="color:var(--text-muted); font-size:0.85rem; width:150px;"></td>
+                        <td style="width:140px;">
+                            <span class="badge" th:style="${n.channel == 'IN_APP' ? 'background:#e0f2fe; color:#0369a1;' : 'background:#fef3c7; color:#92400e;'}" th:text="${n.channel}"></span>
+                        </td>
+                        <td th:text="${n.message}" style="font-size:0.92rem;"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:14px;">
+            <a th:href="@{/home}" class="btn btn-secondary">&larr; Return to Dashboard</a>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

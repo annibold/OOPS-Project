@@ -1,11 +1,47 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><title>Technician</title></head>
+<head>
+    <meta charset="UTF-8">
+    <title>Technician Console - I-ITSM</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
 <body>
-<h2>Technician dashboard</h2>
-<p>Logged in as <b th:text="${email}"></b></p>
-<p><a th:href="@{/technician/incidents}">My assigned incidents</a></p>
-<p><a th:href="@{/notifications}">Notifications</a></p>
-<form th:action="@{/logout}" method="post"><button type="submit">Logout</button></form>
+
+<header class="navbar" style="background:#1e293b;">
+    <a class="brand" th:href="@{/technician/home}" style="color:#38bdf8;">⚡ I-ITSM <span style="font-size:0.8rem; font-weight:normal; color:#94a3b8;">| Engineering Console</span></a>
+    <ul class="navbar-nav">
+        <li><a th:href="@{/technician/home}" style="color:white; font-weight:600;">Dashboard</a></li>
+        <li><a th:href="@{/technician/incidents}">Assigned Incidents</a></li>
+        <li><a th:href="@{/notifications}">🔔 Notifications</a></li>
+        <li><span class="user-badge" th:text="${email}"></span></li>
+        <li>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
+        </li>
+    </ul>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>Technician Workbench 🛠️</h2>
+        <p style="color:var(--text-muted); margin-bottom:24px;">Manage assigned incidents, log investigation notes, consult AI duplicate detection, and resolve system outages.</p>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">
+            <div style="padding:24px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px;">
+                <h3 style="color:#0f172a; margin-bottom:8px;">🔧 Active Assigned Queue</h3>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:16px;">View pending incidents assigned to your skill domain and current active workload.</p>
+                <a th:href="@{/technician/incidents}" class="btn btn-primary">Open Assigned Queue &rarr;</a>
+            </div>
+
+            <div style="padding:24px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px;">
+                <h3 style="color:#0f172a; margin-bottom:8px;">🔔 Activity Notifications</h3>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:16px;">Real-time notifications when new tickets are assigned or reopened by users.</p>
+                <a th:href="@{/notifications}" class="btn btn-secondary">Check Notifications</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

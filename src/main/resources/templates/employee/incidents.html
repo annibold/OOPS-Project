@@ -1,19 +1,74 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><title>My incidents</title></head>
+<head>
+    <meta charset="UTF-8">
+    <title>My Incidents - I-ITSM</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
 <body>
-<h2>My incidents</h2>
-<table border="1" cellpadding="6">
-    <tr><th>ID</th><th>Title</th><th>Category</th><th>Priority</th><th>Status</th><th>Technician</th></tr>
-    <tr th:each="i : ${incidents}">
-        <td><a th:href="@{/employee/incidents/{id}(id=${i.id})}" th:text="${i.id}"></a></td>
-        <td th:text="${i.title}"></td>
-        <td th:text="${i.category}"></td>
-        <td th:text="${i.priority}"></td>
-        <td th:text="${i.status}"></td>
-        <td th:text="${i.assignedTechnician != null} ? ${i.assignedTechnician.name} : '-'"></td>
-    </tr>
-</table>
-<p><a th:href="@{/employee/home}">Back</a></p>
+
+<header class="navbar">
+    <a class="brand" th:href="@{/employee/home}">⚡ I-ITSM <span style="font-size:0.8rem; font-weight:normal; color:#94a3b8;">| Employee Portal</span></a>
+    <ul class="navbar-nav">
+        <li><a th:href="@{/employee/home}">Dashboard</a></li>
+        <li><a th:href="@{/employee/report}">+ Report Issue</a></li>
+        <li><a th:href="@{/employee/incidents}" style="color:white; font-weight:600;">My Incidents</a></li>
+        <li><a th:href="@{/notifications}">🔔 Notifications</a></li>
+        <li>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
+        </li>
+    </ul>
+</header>
+
+<div class="container">
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h2>📋 My Reported Incidents</h2>
+            <a th:href="@{/employee/report}" class="btn btn-primary">+ Report New Incident</a>
+        </div>
+
+        <div th:if="${incidents.empty}" class="alert alert-info">
+            You have not submitted any incident reports yet.
+        </div>
+
+        <div th:if="${!incidents.empty}" class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Assigned Technician</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="i : ${incidents}">
+                        <td><a th:href="@{/employee/incidents/{id}(id=${i.id})}" th:text="'#' + ${i.id}" style="font-weight:600; color:var(--primary);"></a></td>
+                        <td>
+                            <a th:href="@{/employee/incidents/{id}(id=${i.id})}" th:text="${i.title}" style="color:var(--text-main); text-decoration:none; font-weight:500;"></a>
+                        </td>
+                        <td th:text="${i.category}"></td>
+                        <td>
+                            <span th:class="'badge badge-' + ${#strings.toLowerCase(i.priority)}" th:text="${i.priority}"></span>
+                        </td>
+                        <td>
+                            <span class="badge badge-status" th:text="${i.status}"></span>
+                        </td>
+                        <td th:text="${i.assignedTechnician != null} ? ${i.assignedTechnician.name} : 'Pending Assignment'"></td>
+                        <td>
+                            <a th:href="@{/employee/incidents/{id}(id=${i.id})}" class="btn btn-secondary" style="padding:4px 10px; font-size:0.8rem;">View Details</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

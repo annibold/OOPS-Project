@@ -22,8 +22,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        // Public pages
-                        .requestMatchers("/login", "/register").permitAll()
+                        // Public pages and static assets
+                        .requestMatchers("/login", "/register", "/css/**", "/images/**").permitAll()
                         // H2 console (dev only)
                         .requestMatchers("/h2-console/**").permitAll()
                         // Role-locked pages

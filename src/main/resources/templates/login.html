@@ -1,16 +1,47 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><title>I-ITSM Login</title></head>
-<body>
-<h2>I-ITSM Login</h2>
-<p th:if="${param.error}" style="color:red">Invalid email or password.</p>
-<p th:if="${param.logout}">You have been logged out.</p>
-<p th:if="${param.registered}">Registered! Please log in.</p>
-<form th:action="@{/login}" method="post">
-    <label>Email <input type="text" name="username"></label><br>
-    <label>Password <input type="password" name="password"></label><br>
-    <button type="submit">Login</button>
-</form>
-<p><a th:href="@{/register}">Register as employee</a></p>
+<head>
+    <meta charset="UTF-8">
+    <title>Login - I-ITSM System</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body style="display:flex; justify-content:center; align-items:center; min-height:90vh; background:#f1f5f9;">
+
+<div class="card" style="width:100%; max-width:440px; padding:32px; box-shadow:0 10px 25px -5px rgba(0,0,0,0.1);">
+    <div style="text-align:center; margin-bottom:24px;">
+        <h1 style="color:#2563eb; font-size:1.8rem; margin-bottom:6px;">⚡ I-ITSM</h1>
+        <p style="color:var(--text-muted); font-size:0.95rem;">Intelligent IT Service &amp; Incident Resolution</p>
+    </div>
+
+    <div th:if="${param.error}" class="alert alert-danger">Invalid email or password.</div>
+    <div th:if="${param.logout}" class="alert alert-info">You have been logged out safely.</div>
+    <div th:if="${param.registered}" class="alert alert-success">Registration successful! Please login below.</div>
+
+    <form th:action="@{/login}" method="post" style="display:flex; flex-direction:column; gap:16px;">
+        <div>
+            <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:4px;">Email Address</label>
+            <input type="text" name="username" style="width:100%;" placeholder="e.g. employee@itsm.com" required autofocus>
+        </div>
+        <div>
+            <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:4px;">Password</label>
+            <input type="password" name="password" style="width:100%;" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="padding:10px; font-weight:600; margin-top:8px;">Sign In</button>
+    </form>
+
+    <div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--border-color); font-size:0.85rem;">
+        <p style="font-weight:600; margin-bottom:6px; color:#475569;">Quick Demo Credentials:</p>
+        <ul style="list-style:none; padding-left:0; color:#64748b; font-size:0.82rem; line-height:1.6;">
+            <li>👤 <b>Employee:</b> <code>employee@itsm.com</code> / <code>emp123</code></li>
+            <li>🛠️ <b>Technician:</b> <code>karan@itsm.com</code> / <code>tech123</code></li>
+            <li>🛡️ <b>Admin:</b> <code>admin@itsm.com</code> / <code>admin123</code></li>
+        </ul>
+    </div>
+
+    <p style="text-align:center; margin-top:16px; font-size:0.85rem;">
+        New user? <a th:href="@{/register}" style="color:var(--primary); font-weight:600;">Register as employee</a>
+    </p>
+</div>
+
 </body>
 </html>

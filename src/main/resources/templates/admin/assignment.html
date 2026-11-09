@@ -1,34 +1,89 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><title>Assignment</title></head>
+<head>
+    <meta charset="UTF-8">
+    <title>Routing Strategy - I-ITSM</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
 <body>
-<h2>Assignment strategy</h2>
-<p th:if="${message}" th:text="${message}" style="color:green"></p>
-<p th:if="${error}" th:text="${error}" style="color:red"></p>
-<p>Current strategy: <b th:text="${strategy}"></b></p>
-<form th:action="@{/admin/assignment/strategy}" method="post">
-    <select name="name">
-        <option value="skill">skill (best matching skill, most experienced)</option>
-        <option value="load">load (least busy technician)</option>
-    </select>
-    <button type="submit">Change strategy</button>
-</form>
 
-<h2>Unassigned incidents</h2>
-<table border="1" cellpadding="6">
-    <tr><th>ID</th><th>Title</th><th>Category</th><th>Priority</th><th>Action</th></tr>
-    <tr th:each="i : ${unassigned}">
-        <td th:text="${i.id}"></td>
-        <td th:text="${i.title}"></td>
-        <td th:text="${i.category}"></td>
-        <td th:text="${i.priority}"></td>
-        <td>
-            <form th:action="@{/admin/assignment/{id}/assign(id=${i.id})}" method="post">
-                <button type="submit">Assign now</button>
+<header class="navbar" style="background:#0f172a;">
+    <a class="brand" th:href="@{/admin/home}" style="color:#f59e0b;">⚡ I-ITSM <span style="font-size:0.8rem; font-weight:normal; color:#94a3b8;">| Admin Portal</span></a>
+    <ul class="navbar-nav">
+        <li><a th:href="@{/admin/home}">Dashboard</a></li>
+        <li><a th:href="@{/admin/incidents}">Incidents</a></li>
+        <li><a th:href="@{/admin/reports}">Reports</a></li>
+        <li><a th:href="@{/admin/sla}">SLA Monitor</a></li>
+        <li><a th:href="@{/admin/assignment}" style="color:white; font-weight:600;">Assignment</a></li>
+        <li><a th:href="@{/admin/users}">Users</a></li>
+        <li><a th:href="@{/admin/audit}">Audit Trail</a></li>
+        <li><a th:href="@{/notifications}">🔔</a></li>
+        <li>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn-logout">Logout</button>
             </form>
-        </td>
-    </tr>
-</table>
-<p><a th:href="@{/admin/home}">Back</a></p>
+        </li>
+    </ul>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>⚙️ Technician Assignment Strategy (Strategy Pattern)</h2>
+        <p style="color:var(--text-muted); margin-bottom:20px;">
+            The Strategy Design Pattern allows dynamic algorithmic switching of automated ticket distribution at runtime without modifying business logic.
+        </p>
+
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <div style="padding:16px; background:#f8fafc; border:1px solid var(--border-color); border-radius:8px; margin-bottom:24px;">
+            <p style="margin-bottom:10px;">Active Algorithm: <b style="color:var(--primary); text-transform:uppercase;" th:text="${strategy}"></b></p>
+            <form th:action="@{/admin/assignment/strategy}" method="post" style="display:flex; gap:10px; align-items:center;">
+                <select name="name" style="padding:8px 12px;">
+                    <option value="skill" th:selected="${strategy == 'skill'}">Skill-Based (Matches domain expertise, prioritizes experience)</option>
+                    <option value="load" th:selected="${strategy == 'load'}">Load-Based (Least active tickets, prevents engineer burnout)</option>
+                </select>
+                <button type="submit" class="btn btn-primary">Switch Algorithm</button>
+            </form>
+        </div>
+
+        <h3>Unassigned Incidents Queue</h3>
+        <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:12px;">
+            Incidents in CLASSIFIED state that could not be auto-routed due to specialist capacity limits or require manual triage.
+        </p>
+
+        <div th:if="${unassigned.empty}" class="alert alert-info">
+            All reported incidents have been successfully assigned to technicians.
+        </div>
+
+        <div th:if="${!unassigned.empty}" class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="i : ${unassigned}">
+                        <td><a th:href="@{/admin/incidents/{id}(id=${i.id})}" th:text="'#' + ${i.id}" style="font-weight:600; color:var(--primary);"></a></td>
+                        <td th:text="${i.title}"></td>
+                        <td th:text="${i.category}"></td>
+                        <td><span th:class="'badge badge-' + ${#strings.toLowerCase(i.priority)}" th:text="${i.priority}"></span></td>
+                        <td>
+                            <form th:action="@{/admin/assignment/{id}/assign(id=${i.id})}" method="post">
+                                <button type="submit" class="btn btn-success" style="padding:4px 10px; font-size:0.8rem;">Auto-Assign Now</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

@@ -1,57 +1,91 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><title>Incident</title></head>
+<head>
+    <meta charset="UTF-8">
+    <title>Incident Details - I-ITSM</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
 <body>
-<h2>Incident #<span th:text="${incident.id}"></span></h2>
 
-<!-- Flash messages -->
-<p th:if="${success}" th:text="${success}" style="color:green; font-weight:bold"></p>
-<p th:if="${error}"   th:text="${error}"   style="color:red; font-weight:bold"></p>
+<header class="navbar">
+    <a class="brand" th:href="@{/employee/home}">⚡ I-ITSM <span style="font-size:0.8rem; font-weight:normal; color:#94a3b8;">| Employee Portal</span></a>
+    <ul class="navbar-nav">
+        <li><a th:href="@{/employee/home}">Dashboard</a></li>
+        <li><a th:href="@{/employee/report}">+ Report Issue</a></li>
+        <li><a th:href="@{/employee/incidents}">My Incidents</a></li>
+        <li><a th:href="@{/notifications}">🔔 Notifications</a></li>
+        <li>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
+        </li>
+    </ul>
+</header>
 
-<!-- Incident details -->
-<table border="1" cellpadding="6">
-    <tr><td><b>Title</b></td>      <td th:text="${incident.title}"></td></tr>
-    <tr><td><b>Description</b></td><td th:text="${incident.description}"></td></tr>
-    <tr><td><b>Category</b></td>   <td th:text="${incident.category}"></td></tr>
-    <tr><td><b>Priority</b></td>   <td th:text="${incident.priority}"></td></tr>
-    <tr><td><b>Status</b></td>     <td th:text="${incident.status}"></td></tr>
-    <tr><td><b>Assigned to</b></td>
-        <td th:text="${incident.assignedTechnician != null} ? ${incident.assignedTechnician.name} : 'Not yet assigned'"></td></tr>
-    <tr><td><b>Created</b></td>    <td th:text="${#temporals.format(incident.createdAt, 'dd MMM yyyy HH:mm')}"></td></tr>
-    <tr><td><b>Resolved at</b></td>
-        <td th:text="${incident.resolvedAt != null} ? ${#temporals.format(incident.resolvedAt, 'dd MMM yyyy HH:mm')} : '-'"></td></tr>
-    <tr><td><b>Resolution</b></td>
-        <td th:text="${incident.resolution != null} ? ${incident.resolution} : '-'"></td></tr>
-</table>
+<div class="container" style="max-width:850px;">
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h2>Incident #<span th:text="${incident.id}"></span></h2>
+            <span th:class="'badge badge-' + ${#strings.toLowerCase(incident.priority)}" th:text="${incident.priority}"></span>
+        </div>
 
-<!-- Verify resolution (employee confirms the fix works) -->
-<div th:if="${incident.status.name() == 'RESOLVED'}" style="margin-top:16px; padding:12px; border:1px solid #27ae60; background:#eafaf1;">
-    <h3 style="margin-top:0; color:#27ae60;">Resolution provided &mdash; does this fix your issue?</h3>
-    <form th:action="@{/employee/incidents/{id}/verify(id=${incident.id})}" method="post" style="display:inline">
-        <button type="submit" style="background:#27ae60; color:white; padding:8px 16px; font-size:14px; cursor:pointer; border:none; border-radius:4px;">
-            Yes &mdash; Mark as Verified &#10004;
-        </button>
-    </form>
-    <form th:action="@{/employee/incidents/{id}/reopen(id=${incident.id})}" method="post" style="display:inline; margin-left:12px">
-        <button type="submit" style="background:#e67e22; color:white; padding:8px 16px; font-size:14px; cursor:pointer; border:none; border-radius:4px;">
-            No &mdash; Reopen Incident &#8617;
-        </button>
-    </form>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <!-- Incident details table -->
+        <table>
+            <tr><th style="width:25%;">Title</th><td th:text="${incident.title}" style="font-weight:600;"></td></tr>
+            <tr><th>Description</th><td th:text="${incident.description}"></td></tr>
+            <tr><th>Category</th><td th:text="${incident.category}"></td></tr>
+            <tr><th>Current Status</th>
+                <td><span class="badge badge-status" th:text="${incident.status}"></span></td></tr>
+            <tr><th>Assigned Specialist</th>
+                <td th:text="${incident.assignedTechnician != null} ? ${incident.assignedTechnician.name} : 'Pending assignment by IT Manager'"></td></tr>
+            <tr><th>Submitted On</th><td th:text="${#temporals.format(incident.createdAt, 'dd MMM yyyy HH:mm')}"></td></tr>
+            <tr><th>Resolved On</th>
+                <td th:text="${incident.resolvedAt != null} ? ${#temporals.format(incident.resolvedAt, 'dd MMM yyyy HH:mm')} : 'Not yet resolved'"></td></tr>
+            <tr><th>Technician Resolution</th>
+                <td th:text="${incident.resolution != null} ? ${incident.resolution} : '-'" style="font-style:italic;"></td></tr>
+        </table>
+
+        <!-- Employee Verification Panel -->
+        <div th:if="${incident.status.name() == 'RESOLVED'}" style="margin-top:24px; padding:18px; border:2px solid #22c55e; border-radius:8px; background:#f0fdf4;">
+            <h3 style="margin-top:0; color:#15803d;">Resolution provided &mdash; does this fix your issue?</h3>
+            <p style="font-size:0.9rem; color:#166534; margin-bottom:14px;">The assigned technician marked this incident as resolved. Please test and confirm.</p>
+            <form th:action="@{/employee/incidents/{id}/verify(id=${incident.id})}" method="post" style="display:inline">
+                <button type="submit" class="btn btn-success" style="padding:8px 18px;">
+                    Yes &mdash; Mark as Verified &#10004;
+                </button>
+            </form>
+            <form th:action="@{/employee/incidents/{id}/reopen(id=${incident.id})}" method="post" style="display:inline; margin-left:10px">
+                <button type="submit" class="btn btn-warning" style="padding:8px 18px;">
+                    No &mdash; Reopen Incident &#8617;
+                </button>
+            </form>
+        </div>
+
+        <!-- Investigation Notes -->
+        <div style="margin-top:28px;">
+            <h3>📝 Investigation Notes from Engineering</h3>
+            <div th:if="${notes.empty}" style="color:var(--text-muted); font-size:0.9rem;">
+                No notes have been posted by the technician yet.
+            </div>
+            <ul th:if="${!notes.empty}" style="list-style:none; padding-left:0; margin-top:10px;">
+                <li th:each="n : ${notes}" style="padding:10px 14px; background:#f8fafc; border-left:3px solid var(--primary); margin-bottom:8px; border-radius:0 6px 6px 0;">
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:2px;">
+                        <span th:text="${#temporals.format(n.createdAt, 'dd MMM HH:mm')}"></span> &mdash;
+                        <b th:text="${n.author}"></b>
+                    </div>
+                    <div th:text="${n.text}" style="font-size:0.92rem;"></div>
+                </li>
+            </ul>
+        </div>
+
+        <div style="margin-top:24px; border-top:1px solid var(--border-color); padding-top:16px;">
+            <a th:href="@{/employee/incidents}" class="btn btn-secondary">&larr; Back to My Incidents</a>
+        </div>
+    </div>
 </div>
 
-<!-- Investigation notes from technician -->
-<h3>Investigation Notes</h3>
-<p th:if="${notes.empty}" style="color:grey">No notes yet.</p>
-<ul>
-    <li th:each="n : ${notes}" style="margin-bottom:6px">
-        <span th:text="${#temporals.format(n.createdAt, 'dd MMM HH:mm')}" style="color:grey"></span>
-        &mdash; <b th:text="${n.author}"></b>: <span th:text="${n.text}"></span>
-    </li>
-</ul>
-
-<p style="margin-top:20px;">
-    <a th:href="@{/employee/incidents}">&larr; Back to my incidents</a> |
-    <a th:href="@{/employee/home}">Employee Home</a>
-</p>
 </body>
 </html>

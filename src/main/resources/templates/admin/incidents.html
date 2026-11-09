@@ -1,61 +1,133 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><title>Incidents</title></head>
+<head>
+    <meta charset="UTF-8">
+    <title>Monitor Incidents - I-ITSM</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
 <body>
-<h2>Monitor and search incidents</h2>
-<form th:action="@{/admin/incidents}" method="get">
-    <label>ID <input type="text" name="id" size="5" th:value="${c.id()}"></label>
-    <label>Status
-        <select name="status"><option value="">Any</option>
-            <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}" th:selected="${c.status() == s}"></option>
-        </select></label>
-    <label>Priority
-        <select name="priority"><option value="">Any</option>
-            <option th:each="p : ${priorities}" th:value="${p}" th:text="${p}" th:selected="${c.priority() == p}"></option>
-        </select></label>
-    <label>Category
-        <select name="category"><option value="">Any</option>
-            <option th:each="k : ${categories}" th:value="${k}" th:text="${k}" th:selected="${c.category() == k}"></option>
-        </select></label>
-    <label>Technician <input type="text" name="technician" size="12" th:value="${c.technician()}"></label>
-    <label>SLA
-        <select name="sla"><option value="">Any</option>
-            <option th:each="s : ${slaStatuses}" th:value="${s}" th:text="${s}" th:selected="${c.sla() == s}"></option>
-        </select></label>
-    <label>From <input type="date" name="from" th:value="${c.from()}"></label>
-    <label>To <input type="date" name="to" th:value="${c.to()}"></label>
-    <button type="submit">Search</button>
-    <a th:href="@{/admin/incidents}">Clear</a>
-</form>
-<p>Found <b th:text="${#lists.size(rows)}"></b> incident(s)</p>
-<table border="1" cellpadding="6">
-    <tr>
-        <th>ID</th><th>Title</th><th>Category</th><th>Priority</th><th>Status</th><th>Technician</th>
-        <th>Created</th><th>Resolution deadline</th><th>SLA</th><th>Action</th>
-    </tr>
-    <tr th:each="row : ${rows}">
-        <td><a th:href="@{/admin/incidents/{id}(id=${row.incident().id})}" th:text="${row.incident().id}"></a></td>
-        <td><a th:href="@{/admin/incidents/{id}(id=${row.incident().id})}" th:text="${row.incident().title}"></a></td>
-        <td th:text="${row.incident().category}"></td>
-        <td th:text="${row.incident().priority}"></td>
-        <td th:text="${row.incident().status}"></td>
-        <td th:text="${row.incident().assignedTechnician != null} ? ${row.incident().assignedTechnician.name} : '-'"></td>
-        <td th:text="${#temporals.format(row.incident().createdAt, 'dd MMM HH:mm')}"></td>
-        <td><span th:if="${row.sla() != null}"
-                  th:text="${#temporals.format(row.sla().resolutionDeadline(), 'dd MMM HH:mm')}"></span></td>
-        <td>
-            <span th:if="${row.sla() != null}" th:text="${row.sla().status()}"></span>
-        </td>
-        <td>
-            <a th:href="@{/admin/incidents/{id}(id=${row.incident().id})}">View</a>
-            <span th:if="${row.incident().status.name() == 'VERIFIED'}">
-                | <form th:action="@{/admin/incidents/{id}/close(id=${row.incident().id})}" method="post" style="display:inline">
-                    <button type="submit">Close</button>
-                </form>
-            </span>
-        </td>
-    </tr>
-</table>
-<p><a th:href="@{/admin/home}">Back to Dashboard</a></p>
+
+<header class="navbar" style="background:#0f172a;">
+    <a class="brand" th:href="@{/admin/home}" style="color:#f59e0b;">⚡ I-ITSM <span style="font-size:0.8rem; font-weight:normal; color:#94a3b8;">| Admin Portal</span></a>
+    <ul class="navbar-nav">
+        <li><a th:href="@{/admin/home}">Dashboard</a></li>
+        <li><a th:href="@{/admin/incidents}" style="color:white; font-weight:600;">Incidents</a></li>
+        <li><a th:href="@{/admin/reports}">Reports</a></li>
+        <li><a th:href="@{/admin/sla}">SLA Monitor</a></li>
+        <li><a th:href="@{/admin/assignment}">Assignment</a></li>
+        <li><a th:href="@{/admin/users}">Users</a></li>
+        <li><a th:href="@{/admin/audit}">Audit Trail</a></li>
+        <li><a th:href="@{/notifications}">🔔</a></li>
+        <li>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
+        </li>
+    </ul>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>🔍 Monitor &amp; Filter Incidents</h2>
+
+        <!-- Search / Filter Bar -->
+        <form th:action="@{/admin/incidents}" method="get" style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; padding:16px; background:#f8fafc; border:1px solid var(--border-color); border-radius:8px; margin-bottom:20px;">
+            <div>
+                <label style="display:block; font-size:0.75rem; font-weight:600; text-transform:uppercase; margin-bottom:4px;">ID</label>
+                <input type="text" name="id" size="6" th:value="${c.id()}" placeholder="#id">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.75rem; font-weight:600; text-transform:uppercase; margin-bottom:4px;">Status</label>
+                <select name="status">
+                    <option value="">All Statuses</option>
+                    <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}" th:selected="${c.status() == s}"></option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block; font-size:0.75rem; font-weight:600; text-transform:uppercase; margin-bottom:4px;">Priority</label>
+                <select name="priority">
+                    <option value="">All Priorities</option>
+                    <option th:each="p : ${priorities}" th:value="${p}" th:text="${p}" th:selected="${c.priority() == p}"></option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block; font-size:0.75rem; font-weight:600; text-transform:uppercase; margin-bottom:4px;">Category</label>
+                <select name="category">
+                    <option value="">All Categories</option>
+                    <option th:each="k : ${categories}" th:value="${k}" th:text="${k}" th:selected="${c.category() == k}"></option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block; font-size:0.75rem; font-weight:600; text-transform:uppercase; margin-bottom:4px;">Technician</label>
+                <input type="text" name="technician" size="12" th:value="${c.technician()}" placeholder="Name or email">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.75rem; font-weight:600; text-transform:uppercase; margin-bottom:4px;">SLA Health</label>
+                <select name="sla">
+                    <option value="">All SLA</option>
+                    <option th:each="s : ${slaStatuses}" th:value="${s}" th:text="${s}" th:selected="${c.sla() == s}"></option>
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a th:href="@{/admin/incidents}" class="btn btn-secondary">Reset</a>
+            </div>
+        </form>
+
+        <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:12px;">
+            Showing <b><span th:text="${#lists.size(rows)}"></span></b> incident(s) matching criteria.
+        </p>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Technician</th>
+                        <th>Created</th>
+                        <th>SLA Health</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="row : ${rows}">
+                        <td><a th:href="@{/admin/incidents/{id}(id=${row.incident().id})}" th:text="'#' + ${row.incident().id}" style="font-weight:600; color:var(--primary);"></a></td>
+                        <td>
+                            <a th:href="@{/admin/incidents/{id}(id=${row.incident().id})}" th:text="${row.incident().title}" style="color:var(--text-main); text-decoration:none; font-weight:500;"></a>
+                        </td>
+                        <td th:text="${row.incident().category}"></td>
+                        <td>
+                            <span th:class="'badge badge-' + ${#strings.toLowerCase(row.incident().priority)}" th:text="${row.incident().priority}"></span>
+                        </td>
+                        <td>
+                            <span class="badge badge-status" th:text="${row.incident().status}"></span>
+                        </td>
+                        <td th:text="${row.incident().assignedTechnician != null} ? ${row.incident().assignedTechnician.name} : '-'"></td>
+                        <td th:text="${#temporals.format(row.incident().createdAt, 'dd MMM HH:mm')}"></td>
+                        <td>
+                            <span th:if="${row.sla() != null}"
+                                  th:class="'badge badge-' + ${#strings.toLowerCase(row.sla().status())}"
+                                  th:text="${row.sla().status()}"></span>
+                            <span th:if="${row.sla() == null}">-</span>
+                        </td>
+                        <td>
+                            <a th:href="@{/admin/incidents/{id}(id=${row.incident().id})}" class="btn btn-secondary" style="padding:3px 8px; font-size:0.8rem;">View</a>
+                            <span th:if="${row.incident().status.name() == 'VERIFIED'}">
+                                <form th:action="@{/admin/incidents/{id}/close(id=${row.incident().id})}" method="post" style="display:inline">
+                                    <button type="submit" class="btn btn-primary" style="padding:3px 8px; font-size:0.8rem;">Close</button>
+                                </form>
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

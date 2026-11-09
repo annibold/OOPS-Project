@@ -1,12 +1,48 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><title>Employee</title></head>
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Portal - I-ITSM</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
 <body>
-<h2>Employee dashboard</h2>
-<p>Logged in as <b th:text="${email}"></b></p>
-<p><a th:href="@{/employee/report}">Report an incident</a></p>
-<p><a th:href="@{/employee/incidents}">My incidents</a></p>
-<p><a th:href="@{/notifications}">Notifications</a></p>
-<form th:action="@{/logout}" method="post"><button type="submit">Logout</button></form>
+
+<header class="navbar">
+    <a class="brand" th:href="@{/employee/home}">⚡ I-ITSM <span style="font-size:0.8rem; font-weight:normal; color:#94a3b8;">| Employee Portal</span></a>
+    <ul class="navbar-nav">
+        <li><a th:href="@{/employee/home}">Dashboard</a></li>
+        <li><a th:href="@{/employee/report}">+ Report Issue</a></li>
+        <li><a th:href="@{/employee/incidents}">My Incidents</a></li>
+        <li><a th:href="@{/notifications}">🔔 Notifications</a></li>
+        <li><span class="user-badge" th:text="${email}"></span></li>
+        <li>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
+        </li>
+    </ul>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>Welcome back, <span th:text="${email}"></span> 👋</h2>
+        <p style="color:var(--text-muted); margin-bottom:20px;">Report service disruptions, track investigation progress, and verify resolutions.</p>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px; margin-top:20px;">
+            <div style="padding:20px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px;">
+                <h3 style="color:#1d4ed8; margin-bottom:8px;">📢 Report an Incident</h3>
+                <p style="color:#1e3a8a; font-size:0.9rem; margin-bottom:14px;">Facing an issue with VPN, database, network, or apps? Submit a ticket.</p>
+                <a th:href="@{/employee/report}" class="btn btn-primary">+ Report New Incident</a>
+            </div>
+
+            <div style="padding:20px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px;">
+                <h3 style="color:#15803d; margin-bottom:8px;">📋 Track My Incidents</h3>
+                <p style="color:#14532d; font-size:0.9rem; margin-bottom:14px;">Check live technician progress, SLA deadlines, and verify completed fixes.</p>
+                <a th:href="@{/employee/incidents}" class="btn btn-success">View My Incidents</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
