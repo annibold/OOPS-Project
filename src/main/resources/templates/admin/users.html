@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Users</title></head>
+<body>
+<h2>Users</h2>
+<p th:if="${message}" th:text="${message}" style="color:green"></p>
+<p th:if="${error}" th:text="${error}" style="color:red"></p>
+<table border="1" cellpadding="6">
+    <tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th></tr>
+    <tr th:each="u : ${users}">
+        <td th:text="${u.id}"></td>
+        <td th:text="${u.name}"></td>
+        <td th:text="${u.email}"></td>
+        <td th:text="${u.role}"></td>
+    </tr>
+</table>
+
+<h2>Add technician</h2>
+<form th:action="@{/admin/users/technician}" method="post">
+    <label>Name <input type="text" name="name"></label><br>
+    <label>Email <input type="text" name="email"></label><br>
+    <label>Password <input type="password" name="password"></label><br>
+    <label>Experience (years) <input type="number" name="experience" value="0" min="0"></label><br>
+    <fieldset><legend>Skills</legend>
+        <label th:each="c : ${categories}">
+            <input type="checkbox" name="skills" th:value="${c}"> <span th:text="${c}"></span>
+        </label>
+    </fieldset>
+    <button type="submit">Create technician</button>
+</form>
+<p><a th:href="@{/admin/home}">Back</a></p>
+</body>
+</html>

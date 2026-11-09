@@ -4,8 +4,15 @@
 <body>
 <h2>Admin dashboard</h2>
 <p>Logged in as <b th:text="${email}"></b></p>
-<p><a th:href="@{/admin/audit}">Audit log</a></p>
-<p><a th:href="@{/notifications}">Notifications</a></p>
+<ul>
+    <li><a th:href="@{/admin/incidents}">Monitor and search incidents</a></li>
+    <li><a th:href="@{/admin/reports}">Reports</a></li>
+    <li><a th:href="@{/admin/sla}">SLA warnings and violations</a></li>
+    <li><a th:href="@{/admin/assignment}">Assignment strategy and unassigned incidents</a></li>
+    <li><a th:href="@{/admin/users}">Users and technicians</a></li>
+    <li><a th:href="@{/admin/audit}">Audit log</a></li>
+    <li><a th:href="@{/notifications}">Notifications</a></li>
+</ul>
 <form th:action="@{/logout}" method="post"><button type="submit">Logout</button></form>
 </body>
 </html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Incidents</title></head>
+<body>
+<h2>Monitor and search incidents</h2>
+<form th:action="@{/admin/incidents}" method="get">
+    <label>ID <input type="text" name="id" size="5" th:value="${c.id()}"></label>
+    <label>Status
+        <select name="status"><option value="">Any</option>
+            <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}" th:selected="${c.status() == s}"></option>
+        </select></label>
+    <label>Priority
+        <select name="priority"><option value="">Any</option>
+            <option th:each="p : ${priorities}" th:value="${p}" th:text="${p}" th:selected="${c.priority() == p}"></option>
+        </select></label>
+    <label>Category
+        <select name="category"><option value="">Any</option>
+            <option th:each="k : ${categories}" th:value="${k}" th:text="${k}" th:selected="${c.category() == k}"></option>
+        </select></label>
+    <label>Technician <input type="text" name="technician" size="12" th:value="${c.technician()}"></label>
+    <label>SLA
+        <select name="sla"><option value="">Any</option>
+            <option th:each="s : ${slaStatuses}" th:value="${s}" th:text="${s}" th:selected="${c.sla() == s}"></option>
+        </select></label>
+    <label>From <input type="date" name="from" th:value="${c.from()}"></label>
+    <label>To <input type="date" name="to" th:value="${c.to()}"></label>
+    <button type="submit">Search</button>
+    <a th:href="@{/admin/incidents}">Clear</a>
+</form>
+<p>Found <b th:text="${#lists.size(rows)}"></b> incident(s)</p>
+<table border="1" cellpadding="6">
+    <tr><th>ID</th><th>Title</th><th>Category</th><th>Priority</th><th>Status</th><th>Technician</th>
+        <th>Created</th><th>Resolution deadline</th><th>SLA</th></tr>
+    <tr th:each="row : ${rows}">
+        <td th:text="${row.incident().id}"></td>
+        <td th:text="${row.incident().title}"></td>
+        <td th:text="${row.incident().category}"></td>
+        <td th:text="${row.incident().priority}"></td>
+        <td th:text="${row.incident().status}"></td>
+        <td th:text="${row.incident().assignedTechnician != null} ? ${row.incident().assignedTechnician.name} : '-'"></td>
+        <td th:text="${#temporals.format(row.incident().createdAt, 'dd MMM HH:mm')}"></td>
+        <td><span th:if="${row.sla() != null}"
+                  th:text="${#temporals.format(row.sla().resolutionDeadline(), 'dd MMM HH:mm')}"></span></td>
+        <td><span th:if="${row.sla() != null}" th:text="${row.sla().status()}"></span></td>
+    </tr>
+</table>
+<p><a th:href="@{/admin/home}">Back</a></p>
+</body>
+</html>

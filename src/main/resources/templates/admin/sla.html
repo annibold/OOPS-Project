@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>SLA events</title></head>
+<body>
+<h2>SLA warnings and violations</h2>
+<p>The system checks every minute. P1 response target is 5 minutes, so violations show up quickly in a demo.</p>
+<table border="1" cellpadding="6">
+    <tr><th>Detected</th><th>Incident</th><th>Type</th><th>Details</th></tr>
+    <tr th:each="e : ${events}">
+        <td th:text="${#temporals.format(e.detectedAt, 'dd MMM HH:mm:ss')}"></td>
+        <td th:text="${e.incidentId}"></td>
+        <td th:text="${e.type}"></td>
+        <td th:text="${e.description}"></td>
+    </tr>
+</table>
+<p><a th:href="@{/admin/home}">Back</a></p>
+</body>
+</html>

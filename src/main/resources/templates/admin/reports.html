@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Reports</title></head>
+<body>
+<h2>Incident overview</h2>
+<table border="1" cellpadding="6">
+    <tr><td>Total incidents</td><td th:text="${ov.total()}"></td></tr>
+    <tr><td>Open incidents</td><td th:text="${ov.open()}"></td></tr>
+    <tr><td>Critical (P1) incidents</td><td th:text="${ov.critical()}"></td></tr>
+    <tr><td>Resolved incidents</td><td th:text="${ov.resolved()}"></td></tr>
+    <tr><td>Incidents with SLA violations</td><td th:text="${ov.slaViolations()}"></td></tr>
+</table>
+
+<h2>Technician workload</h2>
+<table border="1" cellpadding="6">
+    <tr><th>Technician</th><th>Experience (yrs)</th><th>Active incidents</th></tr>
+    <tr th:each="t : ${ov.technicians()}">
+        <td th:text="${t.name}"></td>
+        <td th:text="${t.experienceYears}"></td>
+        <td th:text="${t.activeIncidents}"></td>
+    </tr>
+</table>
+
+<h2>Incidents by category</h2>
+<table border="1" cellpadding="6">
+    <tr><th>Category</th><th>Incidents</th></tr>
+    <tr th:each="e : ${ov.byCategory()}"><td th:text="${e.key}"></td><td th:text="${e.value}"></td></tr>
+</table>
+
+<h2>Incidents by priority</h2>
+<table border="1" cellpadding="6">
+    <tr><th>Priority</th><th>Incidents</th></tr>
+    <tr th:each="e : ${ov.byPriority()}"><td th:text="${e.key}"></td><td th:text="${e.value}"></td></tr>
+</table>
+<p><a th:href="@{/admin/home}">Back</a></p>
+</body>
+</html>

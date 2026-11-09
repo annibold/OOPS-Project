@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Assignment</title></head>
+<body>
+<h2>Assignment strategy</h2>
+<p th:if="${message}" th:text="${message}" style="color:green"></p>
+<p th:if="${error}" th:text="${error}" style="color:red"></p>
+<p>Current strategy: <b th:text="${strategy}"></b></p>
+<form th:action="@{/admin/assignment/strategy}" method="post">
+    <select name="name">
+        <option value="skill">skill (best matching skill, most experienced)</option>
+        <option value="load">load (least busy technician)</option>
+    </select>
+    <button type="submit">Change strategy</button>
+</form>
+
+<h2>Unassigned incidents</h2>
+<table border="1" cellpadding="6">
+    <tr><th>ID</th><th>Title</th><th>Category</th><th>Priority</th><th>Action</th></tr>
+    <tr th:each="i : ${unassigned}">
+        <td th:text="${i.id}"></td>
+        <td th:text="${i.title}"></td>
+        <td th:text="${i.category}"></td>
+        <td th:text="${i.priority}"></td>
+        <td>
+            <form th:action="@{/admin/assignment/{id}/assign(id=${i.id})}" method="post">
+                <button type="submit">Assign now</button>
+            </form>
+        </td>
+    </tr>
+</table>
+<p><a th:href="@{/admin/home}">Back</a></p>
+</body>
+</html>
