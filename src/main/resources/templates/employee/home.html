@@ -3,8 +3,10 @@
 <head><meta charset="UTF-8"><title>Employee</title></head>
 <body>
 <h2>Employee dashboard</h2>
-<p>Logged in as <b th:text="${email}"></b></p><p><a th:href="@{/employee/report}">Report an incident</a></p>
+<p>Logged in as <b th:text="${email}"></b></p>
+<p><a th:href="@{/employee/report}">Report an incident</a></p>
 <p><a th:href="@{/employee/incidents}">My incidents</a></p>
+<p><a th:href="@{/notifications}">Notifications</a></p>
 <form th:action="@{/logout}" method="post"><button type="submit">Logout</button></form>
 </body>
 </html>

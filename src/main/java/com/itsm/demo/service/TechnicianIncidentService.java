@@ -2,6 +2,7 @@ package com.itsm.demo.service;
 
 import com.itsm.demo.exception.InvalidIncidentException;
 import com.itsm.demo.model.*;
+import com.itsm.demo.observer.IncidentEventPublisher;
 import com.itsm.demo.repository.IncidentNoteRepository;
 import com.itsm.demo.repository.IncidentRepository;
 import com.itsm.demo.repository.TechnicianRepository;
@@ -18,15 +19,18 @@ public class TechnicianIncidentService {
     private final IncidentNoteRepository noteRepository;
     private final TechnicianRepository technicianRepository;
     private final UserRepository userRepository;
+    private final IncidentEventPublisher events;
 
     public TechnicianIncidentService(IncidentRepository incidentRepository,
                                      IncidentNoteRepository noteRepository,
                                      TechnicianRepository technicianRepository,
-                                     UserRepository userRepository) {
+                                     UserRepository userRepository,
+                                     IncidentEventPublisher events) {
         this.incidentRepository = incidentRepository;
         this.noteRepository = noteRepository;
         this.technicianRepository = technicianRepository;
         this.userRepository = userRepository;
+        this.events = events;
     }
 
     private Technician technician(String email) {
@@ -68,15 +72,21 @@ public class TechnicianIncidentService {
     @Transactional
     public void acknowledge(Long id, String email) {
         Incident incident = ownedIncident(id, email);
+        String previous = incident.getStatus().name();
         incident.changeStatus(IncidentStatus.ACKNOWLEDGED);
         incidentRepository.save(incident);
+        events.publish(incident, email, "INCIDENT_ACKNOWLEDGED", previous, "ACKNOWLEDGED",
+                "Technician " + incident.getAssignedTechnician().getName() + " acknowledged the incident");
     }
 
     @Transactional
     public void startWork(Long id, String email) {
         Incident incident = ownedIncident(id, email);
+        String previous = incident.getStatus().name();
         incident.changeStatus(IncidentStatus.IN_PROGRESS);
         incidentRepository.save(incident);
+        events.publish(incident, email, "INVESTIGATION_STARTED", previous, "IN_PROGRESS",
+                "Investigation started");
     }
 
     @Transactional
@@ -86,6 +96,9 @@ public class TechnicianIncidentService {
             throw new InvalidIncidentException("Note cannot be empty");
         }
         noteRepository.save(new IncidentNote(incident, email, text.trim()));
+        String state = incident.getStatus().name();
+        events.publish(incident, email, "NOTE_ADDED", state, state,
+                "Investigation note added");
     }
 
     @Transactional
@@ -94,6 +107,7 @@ public class TechnicianIncidentService {
         if (resolution == null || resolution.isBlank()) {
             throw new InvalidIncidentException("Resolution details are required");
         }
+        String previous = incident.getStatus().name();
         incident.changeStatus(IncidentStatus.RESOLVED);   // fails unless IN_PROGRESS
         incident.setResolution(resolution.trim());
         incidentRepository.save(incident);
@@ -101,5 +115,8 @@ public class TechnicianIncidentService {
         Technician tech = incident.getAssignedTechnician();
         tech.decrementLoad();
         technicianRepository.save(tech);
+
+        events.publish(incident, email, "INCIDENT_RESOLVED", previous, "RESOLVED",
+                "Incident resolved: " + resolution.trim());
     }
 }

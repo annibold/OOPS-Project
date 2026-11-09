@@ -4,6 +4,8 @@
 <body>
 <h2>Admin dashboard</h2>
 <p>Logged in as <b th:text="${email}"></b></p>
+<p><a th:href="@{/admin/audit}">Audit log</a></p>
+<p><a th:href="@{/notifications}">Notifications</a></p>
 <form th:action="@{/logout}" method="post"><button type="submit">Logout</button></form>
 </body>
 </html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Audit log</title></head>
+<body>
+<h2>Audit log</h2>
+<table border="1" cellpadding="6">
+    <tr><th>Time</th><th>User</th><th>Action</th><th>Incident</th><th>From</th><th>To</th><th>Description</th></tr>
+    <tr th:each="r : ${records}">
+        <td th:text="${#temporals.format(r.timestamp, 'dd MMM HH:mm:ss')}"></td>
+        <td th:text="${r.userEmail}"></td>
+        <td th:text="${r.action}"></td>
+        <td th:text="${r.incidentId}"></td>
+        <td th:text="${r.previousState != null} ? ${r.previousState} : '-'"></td>
+        <td th:text="${r.newState}"></td>
+        <td th:text="${r.description}"></td>
+    </tr>
+</table>
+<p><a th:href="@{/admin/home}">Back</a></p>
+</body>
+</html>
