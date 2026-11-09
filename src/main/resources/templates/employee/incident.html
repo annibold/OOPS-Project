@@ -6,7 +6,7 @@
 
 <!-- Flash messages -->
 <p th:if="${success}" th:text="${success}" style="color:green; font-weight:bold"></p>
-<p th:if="${error}"   th:text="${error}"   style="color:red"></p>
+<p th:if="${error}"   th:text="${error}"   style="color:red; font-weight:bold"></p>
 
 <!-- Incident details -->
 <table border="1" cellpadding="6">
@@ -25,13 +25,17 @@
 </table>
 
 <!-- Verify resolution (employee confirms the fix works) -->
-<div th:if="${incident.status.name() == 'RESOLVED'}" style="margin-top:16px; padding:10px; border:1px solid green">
-    <h3>&#10003; Resolution provided — does this fix your issue?</h3>
+<div th:if="${incident.status.name() == 'RESOLVED'}" style="margin-top:16px; padding:12px; border:1px solid #27ae60; background:#eafaf1;">
+    <h3 style="margin-top:0; color:#27ae60;">Resolution provided &mdash; does this fix your issue?</h3>
     <form th:action="@{/employee/incidents/{id}/verify(id=${incident.id})}" method="post" style="display:inline">
-        <button type="submit" style="background:green;color:white;padding:6px 14px">Yes — Mark as Verified ?</button>
+        <button type="submit" style="background:#27ae60; color:white; padding:8px 16px; font-size:14px; cursor:pointer; border:none; border-radius:4px;">
+            Yes &mdash; Mark as Verified &#10004;
+        </button>
     </form>
-    <form th:action="@{/employee/incidents/{id}/reopen(id=${incident.id})}" method="post" style="display:inline; margin-left:10px">
-        <button type="submit" style="background:orange;color:white;padding:6px 14px">No — Reopen Incident ?</button>
+    <form th:action="@{/employee/incidents/{id}/reopen(id=${incident.id})}" method="post" style="display:inline; margin-left:12px">
+        <button type="submit" style="background:#e67e22; color:white; padding:8px 16px; font-size:14px; cursor:pointer; border:none; border-radius:4px;">
+            No &mdash; Reopen Incident &#8617;
+        </button>
     </form>
 </div>
 
@@ -41,10 +45,13 @@
 <ul>
     <li th:each="n : ${notes}" style="margin-bottom:6px">
         <span th:text="${#temporals.format(n.createdAt, 'dd MMM HH:mm')}" style="color:grey"></span>
-        — <span th:text="${n.text}"></span>
+        &mdash; <b th:text="${n.author}"></b>: <span th:text="${n.text}"></span>
     </li>
 </ul>
 
-<p><a th:href="@{/employee/incidents}">&#8592; Back to my incidents</a></p>
+<p style="margin-top:20px;">
+    <a th:href="@{/employee/incidents}">&larr; Back to my incidents</a> |
+    <a th:href="@{/employee/home}">Employee Home</a>
+</p>
 </body>
 </html>
