@@ -3,6 +3,8 @@ package com.itsm.demo.controller;
 import com.itsm.demo.exception.InvalidIncidentException;
 import com.itsm.demo.exception.InvalidStateTransitionException;
 import com.itsm.demo.model.Incident;
+import com.itsm.demo.service.DuplicateDetectionService;
+import com.itsm.demo.service.ResolutionSuggestionService;
 import com.itsm.demo.service.TechnicianIncidentService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -15,9 +17,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class TechnicianIncidentController {
 
     private final TechnicianIncidentService service;
+    private final DuplicateDetectionService duplicateDetectionService;
+    private final ResolutionSuggestionService resolutionSuggestionService;
 
-    public TechnicianIncidentController(TechnicianIncidentService service) {
+    public TechnicianIncidentController(TechnicianIncidentService service,
+                                        DuplicateDetectionService duplicateDetectionService,
+                                        ResolutionSuggestionService resolutionSuggestionService) {
         this.service = service;
+        this.duplicateDetectionService = duplicateDetectionService;
+        this.resolutionSuggestionService = resolutionSuggestionService;
     }
 
     @GetMapping("/incidents")
@@ -32,6 +40,8 @@ public class TechnicianIncidentController {
         Incident incident = service.getIncident(id, auth.getName());
         model.addAttribute("incident", incident);
         model.addAttribute("notes", service.getNotes(incident));
+        model.addAttribute("duplicates", duplicateDetectionService.findDuplicates(incident));
+        model.addAttribute("suggestions", resolutionSuggestionService.suggestResolutions(incident));
         return "technician/incident";
     }
 

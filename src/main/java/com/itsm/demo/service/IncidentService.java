@@ -4,6 +4,7 @@ import com.itsm.demo.exception.InvalidIncidentException;
 import com.itsm.demo.model.*;
 import com.itsm.demo.observer.IncidentEventPublisher;
 import com.itsm.demo.repository.IncidentRepository;
+import com.itsm.demo.repository.TechnicianRepository;
 import com.itsm.demo.strategy.PriorityStrategy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +16,16 @@ public class IncidentService {
     private final IncidentRepository incidentRepository;
     private final PriorityStrategy priorityStrategy;
     private final IncidentEventPublisher events;
+    private final TechnicianRepository technicianRepository;
 
     public IncidentService(IncidentRepository incidentRepository,
                            PriorityStrategy priorityStrategy,
-                           IncidentEventPublisher events) {
+                           IncidentEventPublisher events,
+                           TechnicianRepository technicianRepository) {
         this.incidentRepository = incidentRepository;
         this.priorityStrategy = priorityStrategy;
         this.events = events;
+        this.technicianRepository = technicianRepository;
     }
 
     @Transactional
@@ -48,6 +52,46 @@ public class IncidentService {
                 "NEW", "CLASSIFIED",
                 "Classified as " + category + ", priority calculated as " + saved.getPriority());
         return saved;
+    }
+
+    @Transactional
+    public Incident save(Incident incident) {
+        return incidentRepository.save(incident);
+    }
+
+    @Transactional
+    public void verify(Incident incident, String userEmail) {
+        String previous = incident.getStatus().name();
+        incident.changeStatus(IncidentStatus.VERIFIED);
+        incidentRepository.save(incident);
+        events.publish(incident, userEmail, "INCIDENT_VERIFIED", previous, "VERIFIED",
+                "Resolution verified by employee");
+    }
+
+    @Transactional
+    public void reopen(Incident incident, String userEmail) {
+        String previous = incident.getStatus().name();
+        incident.changeStatus(IncidentStatus.IN_PROGRESS);
+        incidentRepository.save(incident);
+
+        Technician tech = incident.getAssignedTechnician();
+        if (tech != null) {
+            tech.incrementLoad();
+            technicianRepository.save(tech);
+        }
+
+        events.publish(incident, userEmail, "INCIDENT_REOPENED", previous, "IN_PROGRESS",
+                "Resolution rejected by employee, investigation reopened");
+    }
+
+    @Transactional
+    public void close(Long id, String adminEmail) {
+        Incident incident = findById(id);
+        String previous = incident.getStatus().name();
+        incident.changeStatus(IncidentStatus.CLOSED);
+        incidentRepository.save(incident);
+        events.publish(incident, adminEmail, "INCIDENT_CLOSED", previous, "CLOSED",
+                "Incident formally closed by admin " + adminEmail);
     }
 
     public List<Incident> findByReporter(User reporter) {

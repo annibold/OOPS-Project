@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head><meta charset="UTF-8"><title>Incidents</title></head>
 <body>
@@ -29,11 +29,13 @@
 </form>
 <p>Found <b th:text="${#lists.size(rows)}"></b> incident(s)</p>
 <table border="1" cellpadding="6">
-    <tr><th>ID</th><th>Title</th><th>Category</th><th>Priority</th><th>Status</th><th>Technician</th>
-        <th>Created</th><th>Resolution deadline</th><th>SLA</th></tr>
+    <tr>
+        <th>ID</th><th>Title</th><th>Category</th><th>Priority</th><th>Status</th><th>Technician</th>
+        <th>Created</th><th>Resolution deadline</th><th>SLA</th><th>Action</th>
+    </tr>
     <tr th:each="row : ${rows}">
-        <td th:text="${row.incident().id}"></td>
-        <td th:text="${row.incident().title}"></td>
+        <td><a th:href="@{/admin/incidents/{id}(id=${row.incident().id})}" th:text="${row.incident().id}"></a></td>
+        <td><a th:href="@{/admin/incidents/{id}(id=${row.incident().id})}" th:text="${row.incident().title}"></a></td>
         <td th:text="${row.incident().category}"></td>
         <td th:text="${row.incident().priority}"></td>
         <td th:text="${row.incident().status}"></td>
@@ -41,9 +43,19 @@
         <td th:text="${#temporals.format(row.incident().createdAt, 'dd MMM HH:mm')}"></td>
         <td><span th:if="${row.sla() != null}"
                   th:text="${#temporals.format(row.sla().resolutionDeadline(), 'dd MMM HH:mm')}"></span></td>
-        <td><span th:if="${row.sla() != null}" th:text="${row.sla().status()}"></span></td>
+        <td>
+            <span th:if="${row.sla() != null}" th:text="${row.sla().status()}"></span>
+        </td>
+        <td>
+            <a th:href="@{/admin/incidents/{id}(id=${row.incident().id})}">View</a>
+            <span th:if="${row.incident().status.name() == 'VERIFIED'}">
+                | <form th:action="@{/admin/incidents/{id}/close(id=${row.incident().id})}" method="post" style="display:inline">
+                    <button type="submit">Close</button>
+                </form>
+            </span>
+        </td>
     </tr>
 </table>
-<p><a th:href="@{/admin/home}">Back</a></p>
+<p><a th:href="@{/admin/home}">Back to Dashboard</a></p>
 </body>
 </html>

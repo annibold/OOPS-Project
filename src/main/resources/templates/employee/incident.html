@@ -3,15 +3,48 @@
 <head><meta charset="UTF-8"><title>Incident</title></head>
 <body>
 <h2>Incident #<span th:text="${incident.id}"></span></h2>
-<p><b>Title:</b> <span th:text="${incident.title}"></span></p>
-<p><b>Description:</b> <span th:text="${incident.description}"></span></p>
-<p><b>Category:</b> <span th:text="${incident.category}"></span></p>
-<p><b>Priority:</b> <span th:text="${incident.priority}"></span></p>
-<p><b>Status:</b> <span th:text="${incident.status}"></span></p>
-<p><b>Assigned technician:</b>
-    <span th:text="${incident.assignedTechnician != null} ? ${incident.assignedTechnician.name} : 'Not yet assigned'"></span></p>
-<p><b>Created:</b> <span th:text="${#temporals.format(incident.createdAt, 'dd MMM yyyy HH:mm')}"></span></p>
-<p><b>Resolution:</b> <span th:text="${incident.resolution != null} ? ${incident.resolution} : '-'"></span></p>
-<p><a th:href="@{/employee/incidents}">Back to my incidents</a></p>
+
+<!-- Flash messages -->
+<p th:if="${success}" th:text="${success}" style="color:green; font-weight:bold"></p>
+<p th:if="${error}"   th:text="${error}"   style="color:red"></p>
+
+<!-- Incident details -->
+<table border="1" cellpadding="6">
+    <tr><td><b>Title</b></td>      <td th:text="${incident.title}"></td></tr>
+    <tr><td><b>Description</b></td><td th:text="${incident.description}"></td></tr>
+    <tr><td><b>Category</b></td>   <td th:text="${incident.category}"></td></tr>
+    <tr><td><b>Priority</b></td>   <td th:text="${incident.priority}"></td></tr>
+    <tr><td><b>Status</b></td>     <td th:text="${incident.status}"></td></tr>
+    <tr><td><b>Assigned to</b></td>
+        <td th:text="${incident.assignedTechnician != null} ? ${incident.assignedTechnician.name} : 'Not yet assigned'"></td></tr>
+    <tr><td><b>Created</b></td>    <td th:text="${#temporals.format(incident.createdAt, 'dd MMM yyyy HH:mm')}"></td></tr>
+    <tr><td><b>Resolved at</b></td>
+        <td th:text="${incident.resolvedAt != null} ? ${#temporals.format(incident.resolvedAt, 'dd MMM yyyy HH:mm')} : '-'"></td></tr>
+    <tr><td><b>Resolution</b></td>
+        <td th:text="${incident.resolution != null} ? ${incident.resolution} : '-'"></td></tr>
+</table>
+
+<!-- Verify resolution (employee confirms the fix works) -->
+<div th:if="${incident.status.name() == 'RESOLVED'}" style="margin-top:16px; padding:10px; border:1px solid green">
+    <h3>&#10003; Resolution provided — does this fix your issue?</h3>
+    <form th:action="@{/employee/incidents/{id}/verify(id=${incident.id})}" method="post" style="display:inline">
+        <button type="submit" style="background:green;color:white;padding:6px 14px">Yes — Mark as Verified ?</button>
+    </form>
+    <form th:action="@{/employee/incidents/{id}/reopen(id=${incident.id})}" method="post" style="display:inline; margin-left:10px">
+        <button type="submit" style="background:orange;color:white;padding:6px 14px">No — Reopen Incident ?</button>
+    </form>
+</div>
+
+<!-- Investigation notes from technician -->
+<h3>Investigation Notes</h3>
+<p th:if="${notes.empty}" style="color:grey">No notes yet.</p>
+<ul>
+    <li th:each="n : ${notes}" style="margin-bottom:6px">
+        <span th:text="${#temporals.format(n.createdAt, 'dd MMM HH:mm')}" style="color:grey"></span>
+        — <span th:text="${n.text}"></span>
+    </li>
+</ul>
+
+<p><a th:href="@{/employee/incidents}">&#8592; Back to my incidents</a></p>
 </body>
 </html>

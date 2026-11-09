@@ -1,18 +1,43 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head><meta charset="UTF-8"><title>Incident</title></head>
 <body>
 <h2>Incident #<span th:text="${incident.id}"></span></h2>
-<p th:if="${error}" th:text="${error}" style="color:red"></p>
+<p th:if="${error}" th:text="${error}" style="color:red; font-weight:bold;"></p>
 
-<p><b>Title:</b> <span th:text="${incident.title}"></span></p>
-<p><b>Description:</b> <span th:text="${incident.description}"></span></p>
-<p><b>Reported by:</b> <span th:text="${incident.reporter.name}"></span></p>
-<p><b>Category:</b> <span th:text="${incident.category}"></span></p>
-<p><b>Priority:</b> <span th:text="${incident.priority}"></span></p>
-<p><b>Status:</b> <span th:text="${incident.status}"></span></p>
-<p><b>Created:</b> <span th:text="${#temporals.format(incident.createdAt, 'dd MMM yyyy HH:mm')}"></span></p>
-<p><b>Resolution:</b> <span th:text="${incident.resolution != null} ? ${incident.resolution} : '-'"></span></p>
+<table border="1" cellpadding="6">
+    <tr><td><b>Title:</b></td><td><span th:text="${incident.title}"></span></td></tr>
+    <tr><td><b>Description:</b></td><td><span th:text="${incident.description}"></span></td></tr>
+    <tr><td><b>Reported by:</b></td><td><span th:text="${incident.reporter.name}"></span></td></tr>
+    <tr><td><b>Category:</b></td><td><span th:text="${incident.category}"></span></td></tr>
+    <tr><td><b>Priority:</b></td><td><span th:text="${incident.priority}"></span></td></tr>
+    <tr><td><b>Status:</b></td><td><span th:text="${incident.status}"></span></td></tr>
+    <tr><td><b>Created:</b></td><td><span th:text="${#temporals.format(incident.createdAt, 'dd MMM yyyy HH:mm')}"></span></td></tr>
+    <tr><td><b>Resolution:</b></td><td><span th:text="${incident.resolution != null} ? ${incident.resolution} : '-'"></span></td></tr>
+</table>
+
+<!-- Intelligent Feature 1: Correlated / Duplicate Detection -->
+<div th:if="${!duplicates.empty}" style="margin-top:15px; padding:10px; border:2px dashed #f39c12; background:#fef9e7;">
+    <h3 style="color:#d35400; margin-top:0;">⚠️ Intelligent Alert: Potential Correlated / Duplicate Incidents Detected</h3>
+    <ul>
+        <li th:each="d : ${duplicates}">
+            <b>Incident #<span th:text="${d.incident.id}"></span>:</b>
+            <span th:text="${d.incident.title}"></span>
+            (<span th:text="${d.incident.status}"></span>) -
+            <i><span th:text="${d.reason}"></span></i>
+        </li>
+    </ul>
+</div>
+
+<!-- Intelligent Feature 2: Historical Resolution Suggestions -->
+<div th:if="${!suggestions.empty}" style="margin-top:15px; padding:10px; border:2px solid #27ae60; background:#eafaf1;">
+    <h3 style="color:#27ae60; margin-top:0;">💡 AI / Heuristic Suggestion: Past Proven Resolutions</h3>
+    <div th:each="s : ${suggestions}" style="margin-bottom:8px; padding:6px; background:white; border-radius:4px;">
+        <p style="margin:2px 0;"><b>Matched with past Incident #<span th:text="${s.incidentId}"></span> ("<span th:text="${s.incidentTitle}"></span>")</b> -
+           Confidence: <span th:text="${#numbers.formatPercent(s.confidence, 1, 0)}"></span></p>
+        <blockquote style="margin:4px 0 0 10px; color:#2c3e50;" th:text="${s.resolution}"></blockquote>
+    </div>
+</div>
 
 <h3>Actions</h3>
 <form th:if="${incident.status.name() == 'ASSIGNED'}"
@@ -25,20 +50,22 @@
 </form>
 <form th:if="${incident.status.name() == 'IN_PROGRESS'}"
       th:action="@{/technician/incidents/{id}/resolve(id=${incident.id})}" method="post">
-    <label>Resolution details<br><textarea name="resolution" rows="3" cols="50"></textarea></label><br>
-    <button type="submit">Mark resolved</button>
+    <label><b>Resolution details</b><br>
+        <textarea name="resolution" rows="4" cols="60" placeholder="Describe the solution or paste from suggestions above..."></textarea>
+    </label><br>
+    <button type="submit" style="background:#27ae60; color:white; padding:6px 14px; cursor:pointer;">Mark Resolved</button>
 </form>
 
 <h3>Investigation notes</h3>
 <ul>
     <li th:each="n : ${notes}">
         <span th:text="${#temporals.format(n.createdAt, 'dd MMM HH:mm')}"></span> -
-        <span th:text="${n.author}"></span>: <span th:text="${n.text}"></span>
+        <b th:text="${n.author}"></b>: <span th:text="${n.text}"></span>
     </li>
 </ul>
 <form th:if="${incident.status.name() == 'ACKNOWLEDGED' or incident.status.name() == 'IN_PROGRESS'}"
       th:action="@{/technician/incidents/{id}/note(id=${incident.id})}" method="post">
-    <textarea name="text" rows="2" cols="50"></textarea><br>
+    <textarea name="text" rows="2" cols="50" placeholder="Add an investigation note..."></textarea><br>
     <button type="submit">Add note</button>
 </form>
 

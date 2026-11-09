@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Admin - Incident Details</title></head>
+<body>
+<h2>Incident #<span th:text="${incident.id}"></span> Details</h2>
+
+<p th:if="${message}" th:text="${message}" style="color:green; font-weight:bold;"></p>
+<p th:if="${error}" th:text="${error}" style="color:red; font-weight:bold;"></p>
+
+<table border="1" cellpadding="6">
+    <tr><td><b>Title</b></td><td th:text="${incident.title}"></td></tr>
+    <tr><td><b>Description</b></td><td th:text="${incident.description}"></td></tr>
+    <tr><td><b>Reporter</b></td><td th:text="${incident.reporter.name} + ' (' + ${incident.reporter.email} + ')'"></td></tr>
+    <tr><td><b>Category</b></td><td th:text="${incident.category}"></td></tr>
+    <tr><td><b>Priority</b></td><td th:text="${incident.priority}"></td></tr>
+    <tr><td><b>Status</b></td><td th:text="${incident.status}"></td></tr>
+    <tr><td><b>Assigned Technician</b></td>
+        <td th:text="${incident.assignedTechnician != null} ? ${incident.assignedTechnician.name} : 'Unassigned'"></td></tr>
+    <tr><td><b>Created At</b></td><td th:text="${#temporals.format(incident.createdAt, 'dd MMM yyyy HH:mm')}"></td></tr>
+    <tr><td><b>Resolved At</b></td>
+        <td th:text="${incident.resolvedAt != null} ? ${#temporals.format(incident.resolvedAt, 'dd MMM yyyy HH:mm')} : '-'"></td></tr>
+    <tr><td><b>Resolution Notes</b></td><td th:text="${incident.resolution != null} ? ${incident.resolution} : '-'"></td></tr>
+    <tr th:if="${sla != null}">
+        <td><b>SLA Status</b></td>
+        <td>
+            Status: <b th:text="${sla.status()}"></b> |
+            Response Target: <span th:text="${#temporals.format(sla.responseDeadline(), 'HH:mm')}"></span> |
+            Resolution Target: <span th:text="${#temporals.format(sla.resolutionDeadline(), 'HH:mm')}"></span>
+        </td>
+    </tr>
+</table>
+
+<!-- Intelligent Feature 1: Correlated Incidents Alert -->
+<div th:if="${!duplicates.empty}" style="margin-top:15px; padding:10px; border:2px dashed #e67e22; background:#fef5e7;">
+    <h3 style="color:#d35400; margin-top:0;">⚠️ Correlated / Duplicate Incidents</h3>
+    <ul>
+        <li th:each="d : ${duplicates}">
+            <a th:href="@{/admin/incidents/{id}(id=${d.incident.id})}">
+                Incident #<span th:text="${d.incident.id}"></span>: <span th:text="${d.incident.title}"></span>
+            </a>
+            - <span th:text="${d.reason}"></span>
+        </li>
+    </ul>
+</div>
+
+<div th:if="${incident.status.name() == 'VERIFIED'}" style="margin-top:15px; padding:10px; background-color:#eef; border:1px solid #99c;">
+    <h3>Closure Action</h3>
+    <p>This incident has been verified by the user. You can now formally close it.</p>
+    <form th:action="@{/admin/incidents/{id}/close(id=${incident.id})}" method="post">
+        <button type="submit" style="background-color:#007bff; color:white; padding:8px 16px; cursor:pointer;">
+            Confirm & Formally Close Incident
+        </button>
+    </form>
+</div>
+
+<h3>Technician Notes</h3>
+<p th:if="${notes.empty}" style="color:gray;">No notes recorded yet.</p>
+<ul>
+    <li th:each="n : ${notes}">
+        <span th:text="${#temporals.format(n.createdAt, 'dd MMM HH:mm')}"></span> -
+        <b th:text="${n.author}"></b>: <span th:text="${n.text}"></span>
+    </li>
+</ul>
+
+<h3>Audit Trail</h3>
+<table border="1" cellpadding="6">
+    <tr><th>Timestamp</th><th>Actor</th><th>Action</th><th>Transition</th><th>Description</th></tr>
+    <tr th:each="a : ${audits}">
+        <td th:text="${#temporals.format(a.timestamp, 'dd MMM HH:mm:ss')}"></td>
+        <td th:text="${a.userEmail}"></td>
+        <td th:text="${a.action}"></td>
+        <td th:text="${a.previousState} + ' -> ' + ${a.newState}"></td>
+        <td th:text="${a.description}"></td>
+    </tr>
+</table>
+
+<p style="margin-top:20px;">
+    <a th:href="@{/admin/incidents}">Back to Incident List</a> |
+    <a th:href="@{/admin/home}">Admin Dashboard</a>
+</p>
+</body>
+</html>
