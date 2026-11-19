@@ -50,6 +50,8 @@
             <tr><th>Resolved At</th>
                 <td th:text="${incident.resolvedAt != null} ? ${#temporals.format(incident.resolvedAt, 'dd MMM yyyy HH:mm')} : '-'"></td></tr>
             <tr><th>Resolution Notes</th><td th:text="${incident.resolution != null} ? ${incident.resolution} : '-'"></td></tr>
+            <tr th:if="${incident.rating != null}"><th>Employee Rating</th><td><span th:each="i : ${#numbers.sequence(1, incident.rating)}" style="color:#f59e0b;">&#11088;</span> (<span th:text="${incident.rating}"></span>/5)</td></tr>
+            <tr th:if="${incident.feedback != null}"><th>Employee Feedback</th><td th:text="${incident.feedback}" style="font-style:italic;"></td></tr>
             <tr th:if="${sla != null}">
                 <th>SLA Health Status</th>
                 <td>

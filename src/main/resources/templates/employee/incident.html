@@ -48,20 +48,51 @@
                 <td th:text="${incident.resolution != null} ? ${incident.resolution} : '-'" style="font-style:italic;"></td></tr>
         </table>
 
-        <!-- Employee Verification Panel -->
+        <!-- Employee Verification Panel with Feedback -->
         <div th:if="${incident.status.name() == 'RESOLVED'}" style="margin-top:24px; padding:18px; border:2px solid #22c55e; border-radius:8px; background:#f0fdf4;">
             <h3 style="margin-top:0; color:#15803d;">Resolution provided &mdash; does this fix your issue?</h3>
             <p style="font-size:0.9rem; color:#166534; margin-bottom:14px;">The assigned technician marked this incident as resolved. Please test and confirm.</p>
-            <form th:action="@{/employee/incidents/{id}/verify(id=${incident.id})}" method="post" style="display:inline">
+
+            <form th:action="@{/employee/incidents/{id}/verify(id=${incident.id})}" method="post" style="margin-bottom:14px;">
+                <div style="margin-bottom:10px;">
+                    <label style="font-weight:600; display:block; margin-bottom:4px; color:#166534;">Rate the support experience (optional):</label>
+                    <select name="rating" style="padding:6px 10px; border:1px solid #86efac; border-radius:4px; background:white;">
+                        <option value="">-- Select Rating --</option>
+                        <option value="5">&#11088; 5 - Excellent</option>
+                        <option value="4">&#11088; 4 - Good</option>
+                        <option value="3">&#11088; 3 - Average</option>
+                        <option value="2">&#11088; 2 - Below Average</option>
+                        <option value="1">&#11088; 1 - Poor</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:12px;">
+                    <label style="font-weight:600; display:block; margin-bottom:4px; color:#166534;">Feedback comment (optional):</label>
+                    <textarea name="feedback" rows="2" style="width:100%; padding:8px; border:1px solid #86efac; border-radius:4px;" placeholder="Share your experience with the resolution..."></textarea>
+                </div>
                 <button type="submit" class="btn btn-success" style="padding:8px 18px;">
                     Yes &mdash; Mark as Verified &#10004;
                 </button>
             </form>
-            <form th:action="@{/employee/incidents/{id}/reopen(id=${incident.id})}" method="post" style="display:inline; margin-left:10px">
+
+            <form th:action="@{/employee/incidents/{id}/reopen(id=${incident.id})}" method="post" style="display:inline;">
                 <button type="submit" class="btn btn-warning" style="padding:8px 18px;">
                     No &mdash; Reopen Incident &#8617;
                 </button>
             </form>
+        </div>
+
+        <!-- Show feedback if already verified -->
+        <div th:if="${incident.feedback != null or incident.rating != null}" style="margin-top:20px; padding:14px; border:1px solid #bfdbfe; border-radius:8px; background:#eff6ff;">
+            <h4 style="margin-top:0; color:#1e40af;">Your Feedback</h4>
+            <div th:if="${incident.rating != null}" style="margin-bottom:6px;">
+                <span style="font-weight:600;">Rating:</span>
+                <span th:each="i : ${#numbers.sequence(1, incident.rating)}" style="color:#f59e0b;">&#11088;</span>
+                <span style="color:var(--text-muted);"> (<span th:text="${incident.rating}"></span>/5)</span>
+            </div>
+            <div th:if="${incident.feedback != null}">
+                <span style="font-weight:600;">Comment:</span>
+                <span th:text="${incident.feedback}" style="font-style:italic;"></span>
+            </div>
         </div>
 
         <!-- Investigation Notes -->

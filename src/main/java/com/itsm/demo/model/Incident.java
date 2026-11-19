@@ -42,6 +42,11 @@ public class Incident {
     @Column(length = 2000)
     private String resolution;
 
+    @Column(length = 2000)
+    private String feedback;
+
+    private Integer rating;  // 1-5 stars
+
     protected Incident() { }
 
     public Incident(String title, String description, User reporter,
@@ -84,4 +89,9 @@ public class Incident {
     public LocalDateTime getResolvedAt() { return resolvedAt; }
     public String getResolution() { return resolution; }
     public void setResolution(String resolution) { this.resolution = resolution; }
+
+    public String getFeedback() { return feedback; }
+    public void setFeedback(String feedback) { this.feedback = feedback; }
+    public Integer getRating() { return rating; }
+    public void setRating(Integer rating) { this.rating = rating; }
 }

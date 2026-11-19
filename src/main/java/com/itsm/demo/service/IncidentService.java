@@ -59,13 +59,27 @@ public class IncidentService {
         return incidentRepository.save(incident);
     }
 
-    @Transactional
+        @Transactional
     public void verify(Incident incident, String userEmail) {
+        verify(incident, userEmail, null, null);
+    }
+
+    @Transactional
+    public void verify(Incident incident, String userEmail, String feedback, Integer rating) {
         String previous = incident.getStatus().name();
+        if (feedback != null && !feedback.isBlank()) {
+            incident.setFeedback(feedback.trim());
+        }
+        if (rating != null && rating >= 1 && rating <= 5) {
+            incident.setRating(rating);
+        }
         incident.changeStatus(IncidentStatus.VERIFIED);
         incidentRepository.save(incident);
-        events.publish(incident, userEmail, "INCIDENT_VERIFIED", previous, "VERIFIED",
-                "Resolution verified by employee");
+        String desc = "Resolution verified by employee";
+        if (rating != null) {
+            desc += " (rating: " + rating + "/5)";
+        }
+        events.publish(incident, userEmail, "INCIDENT_VERIFIED", previous, "VERIFIED", desc);
     }
 
     @Transactional

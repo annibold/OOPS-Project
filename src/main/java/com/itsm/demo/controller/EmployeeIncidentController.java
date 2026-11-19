@@ -94,12 +94,15 @@ public class EmployeeIncidentController {
     }
 
     /** Employee confirms the fix works: RESOLVED -> VERIFIED */
-    @PostMapping("/incidents/{id}/verify")
-    public String verify(@PathVariable Long id, Authentication auth, RedirectAttributes ra) {
+        @PostMapping("/incidents/{id}/verify")
+    public String verify(@PathVariable Long id,
+                         @RequestParam(required = false) String feedback,
+                         @RequestParam(required = false) Integer rating,
+                         Authentication auth, RedirectAttributes ra) {
         try {
             Incident incident = ownedIncident(id, auth);
-            incidentService.verify(incident, auth.getName());
-            ra.addFlashAttribute("success", "Incident verified. Thank you!");
+            incidentService.verify(incident, auth.getName(), feedback, rating);
+            ra.addFlashAttribute("success", "Incident verified. Thank you for your feedback!");
         } catch (InvalidStateTransitionException | InvalidIncidentException e) {
             ra.addFlashAttribute("error", e.getMessage());
         }

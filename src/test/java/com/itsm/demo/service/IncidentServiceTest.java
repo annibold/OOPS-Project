@@ -87,4 +87,22 @@ class IncidentServiceTest {
         assertEquals(loadBefore + 1, tech.getActiveIncidents());
         verify(technicianRepository).save(tech);
     }
+
+    @Test
+    void verify_recordsFeedbackAndRating() {
+        User reporter = new Employee("Employee User", "emp@itsm.com", "pass");
+        Incident incident = new Incident("Test Issue", "Desc", reporter, 2, 2, 2);
+        incident.changeStatus(IncidentStatus.CLASSIFIED);
+        incident.changeStatus(IncidentStatus.ASSIGNED);
+        incident.changeStatus(IncidentStatus.ACKNOWLEDGED);
+        incident.changeStatus(IncidentStatus.IN_PROGRESS);
+        incident.changeStatus(IncidentStatus.RESOLVED);
+
+        incidentService.verify(incident, "emp@itsm.com", "Resolved quickly and effectively!", 5);
+
+        assertEquals(IncidentStatus.VERIFIED, incident.getStatus());
+        assertEquals("Resolved quickly and effectively!", incident.getFeedback());
+        assertEquals(5, incident.getRating());
+        verify(incidentRepository).save(incident);
+    }
 }
